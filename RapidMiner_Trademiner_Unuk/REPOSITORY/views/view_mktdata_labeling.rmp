@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="460" width="279">
+      <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="112" y="75">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="define_query" value="query"/>
+        <parameter key="query" value="&#10;SELECT last as `last price`, utc_time_ as `utc time` , class AS label &#10;FROM MKTDATA a WHERE  a.symbol='BAC'   &#10; AND date_ =  STR_TO_DATE('2013/07/10','%Y/%m/%d') and&#10; utc_time_ &gt;  STR_TO_DATE('13:30:00','%H:%i:%s') AND&#10; utc_time_ &lt;=  STR_TO_DATE('20:00:00','%H:%i:%s')&#10; ORDER BY utc_time_&#10;&#10; "/>
+        <parameter key="use_default_schema" value="true"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="false" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read news" width="90" x="112" y="210">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="define_query" value="query"/>
+        <parameter key="query" value=" &#10; SELECT n.`next_trade_time` , n.`Title`  ,label FROM alignment a , rss n WHERE a.news_id=n.id AND a.ticket LIKE '%20150903'&#10;AND a.symbol='BAC'   AND  n.`next_trade_date` = STR_TO_DATE('2013/07/10','%Y/%m/%d')&#10;AND label&lt;&gt;0&#10;ORDER BY n.next_trade_time"/>
+        <parameter key="use_default_schema" value="true"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="false" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Discover news count" width="90" x="112" y="345">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="define_query" value="query"/>
+        <parameter key="query" value="&#10;SELECT n.`next_trade_date` ,a.symbol,  COUNT(*) FROM alignment a , rss n WHERE a.news_id=n.id AND a.ticket LIKE '%20150903'&#10;-- AND a.symbol='MSFT'   &#10;-- AND  n.`next_trade_date` = STR_TO_DATE('2013/08/14','%Y/%m/%d')&#10;AND n.next_trade_time &gt;  STR_TO_DATE('13:30:00','%H:%i:%s')&#10;AND label&lt;&gt;0  GROUP BY  n.next_trade_date, a.symbol&#10;ORDER BY COUNT(*) DESC&#10;"/>
+        <parameter key="use_default_schema" value="true"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <connect from_op="Read Database" from_port="output" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>

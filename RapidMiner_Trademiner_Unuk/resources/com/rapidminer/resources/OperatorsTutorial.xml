@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<operators name="tutorial" version="5.0" docbundle="com/rapidminer/resources/i18n/OperatorsDocTutorial">
+   <group key="">
+      <group key="Trademiner">
+      	 <group key="io">
+            <operator>
+            <icon>folder_new.png</icon>
+               <key>Create Directory</key>
+               <class>com.rapidminer.operator.io.MkDir</class>
+            </operator>
+      	 </group>
+         <group key="data_transformation">
+            <!--  
+            <group key="type_conversion">
+               <operator>
+                  <key>numerical_to_date</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.Numerical2DateOperator
+                  </class>
+               </operator>
+            </group>
+             -->
+               
+                 <operator>
+            		<icon>gear.png</icon>
+                  <key>Performance To ExampleSet</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.PerformanceToResultSet
+                  </class>
+               </operator>
+                             
+                 <operator>
+                  <icon>gear.png</icon>
+                  <key>Text Summarization</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.TextSummarization
+                  </class>
+               </operator>
+               
+               
+                <operator>
+                <icon>gear.png</icon>
+                  <key>Random Undersampling</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.RandomUndersampling</class>
+               </operator>
+               
+               
+               <operator>
+                  <icon>gear.png</icon>
+                  <key>KNN Undersampling</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.KNNUndersampling</class>
+               </operator>
+            
+            <!-- Failed experiments (This brings me back in the memory the genetic lab scene in Alien III) -->
+            <!--     
+        
+               <operator>
+                  <key>Dimensionality Compression</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.DimensionalityCompression
+                  </class>
+               </operator>
+               <operator>
+                  <key>Agglomerative KNN Reduction</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.AgglomerativeKNNReduction
+                  </class>
+               </operator>
+         <group key="process_control">
+                 <operator>
+                  <key>Wait for File</key>
+                  <class>com.rapidminer.operator.preprocessing.processcontrol.WaitForFile</class>
+               </operator>
+         </group>
+               
+               
+               <operator>
+                  <key>KNN Undersampling Classifier</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.KNNUndersamplingClassifier</class>
+               </operator>
+              
+               <operator>
+                  <key>KNN Undersampling Distance Output</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.KNNUndersamplingDistancesOutput</class>
+               </operator>
+ 
+ 
+               <operator>
+                  <key>KNN Undersampling Remove Prediction</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.KNNUndersamplingRemovePrediction</class>
+               </operator>
+               
+               <operator>
+                  <key>KNN Undersampling no Label</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.KNNUndersamplingNoLabel</class>
+               </operator>
+               
+               
+               -->
+               
+                <operator>
+                	<icon>gear.png</icon>
+                  <key>Aggregate Decision By TradeDatetime</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.AggregateDecisionByTradeDatetime</class>
+               </operator>
+               
+               
+               
+                 
+                 
+                 
+         
+                 
+                
+               
+               <operator>
+                  <icon>gear.png</icon>
+                  <key>SMOTE</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.SMOTE</class>
+               </operator>
+               
+               
+               
+               
+               
+                 <operator>
+                 <icon>gear.png</icon>
+                  <key>Generate Word Count for Chart</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.GenerateWordsForChart</class>
+               </operator>
+               
+               
+               <operator>
+               <icon>gear.png</icon>
+                  <key>Read Macros From Data</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.ReadMacrosFromData</class>
+               </operator>
+               
+               
+                 
+               
+               
+            <operator>
+            	<icon>gear.png</icon>
+               <key>Remove words not in Dictionary</key>
+               <class>com.rapidminer.operator.preprocessing.transformation.RemoveWordsNotInDictionary</class>
+               <replaces>StopwordFileFilter</replaces>
+            </operator>
+               
+               
+            <operator>
+            <icon>gear.png</icon>
+               <key>Generate N-Gram Word List</key>
+               <class>com.rapidminer.operator.preprocessing.transformation.GenerateNGramWordList</class>
+               <replaces>StopwordFileFilter</replaces>
+            </operator>
+            
+         
+         
+         	
+               
+            
+         </group>
+         <group key="alignment">
+         <operator>
+         <icon>document_chart.png</icon>
+            <key>News Aligner</key>
+            <class>com.rapidminer.operator.trademiner.aligner.NewsAligner</class>
+         </operator>
+         
+         </group>
+
+
+         <group key="acquisition">
+         <operator>
+         <icon>document_chart.png</icon>
+            <key>Custom Content Updater</key>
+            <class>com.rapidminer.operator.trademiner.acquisition.CustomContentUpdater</class>
+         </operator>
+         
+         </group><group key="evaluation">
+         <operator>
+         <icon>symbol_percent.png</icon>
+            <key>Simple Strategy Simulator</key>
+            <class>com.rapidminer.operator.trademiner.eval.SimpleStrategySimulator</class>
+         </operator>
+         
+          <operator>
+          <icon>symbol_percent.png</icon>
+            <key>Random Trader</key>
+            <class>com.rapidminer.operator.trademiner.eval.RandomTrader</class>
+         </operator>
+
+       
+      
+      
+      
+        <operator>
+			<icon>symbol_percent.png</icon>
+			<key>G-Mean (Binomial Classification)</key>
+			<class>com.rapidminer.operator.trademiner.eval.GMeanPerformance</class>
+		</operator>
+      
+      
+      
+          <operator>
+          <icon>symbol_percent.png</icon>
+            <key>Performance (Weka)</key>
+            <class>com.rapidminer.operator.trademiner.eval.WekaPerformance</class>
+         </operator>
+         
+         	
+         
+      
+         
+         
+
+
+      </group>
+
+ <group key="fixes">
+     <operator>
+          <icon>symbol_percent.png</icon>
+            <key>Fix Performance Vector</key>
+            <class>com.rapidminer.operator.trademiner.eval.FixPerformanceVector</class>
+         </operator>
+         
+           <operator>
+			<icon>symbol_percent.png</icon>
+			<key>Performance Fixed (Binomial Classification)</key>
+			<class>com.rapidminer.operator.performance.BinominalClassificationPerformanceEvaluatorFixed</class>
+			<replaces>BinominalClassificationPerformance</replaces>
+		</operator>
+                 
+               <operator>
+               <icon>gear.png</icon>
+                  <key>Write CSV Fixed</key>
+                  <class>com.rapidminer.operator.io.CSVExampleSetWriterFixed</class>
+               </operator>
+            
+                  <operator>
+                  <icon>gear.png</icon>
+                  <key>Adjust Mapping Bug</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.AdjustMapping</class>
+               </operator>
+               
+                	<operator>
+         		<icon>gear.png</icon>
+					<key>Loop Values Fixed</key>
+					<class>com.rapidminer.operator.preprocessing.transformation.ValueIterationFixed</class>
+			
+				</operator>      
+
+  <operator>
+                 <icon>gear.png</icon>
+                  <key>Set Data Fixed</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.SetDataFixed</class>
+               </operator>
+               
+ </group>
+
+               
+		</group>
+         
+         
+         
+   </group>
+</operators>

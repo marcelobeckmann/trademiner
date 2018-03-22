@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <description>In this process we perform some type conversions from raw_mktdata table into mktdata, assign the delta from the previous quote, as well
+    assign labels to each record, according (Lavrenko, 2000, Mining of Concurrent Time Series, pp. 4):	
+    "We have found that a simple binning procedure can effectively single out the trends that we find most interesting. Segments with slopes greater than or equal to 75 of ..."    
+    
+    </description>
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="341" width="480">
+      <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL (1)" width="90" x="45" y="30">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="query" value="delete from raw_mktdata where date_='N/A' or date_ is null"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+      </operator>
+      <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL" width="90" x="179" y="120">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="query" value="&#10;insert into mktdata&#10;(id,last,earns,p_e,previous_close,percent_change, volume,high,low,mktcap,symbol,change_,date_,open,time,&#10;ann_range,localtime_,utc_time_)&#10;select id,last,earns,p_e,previous_close,percent_change, volume,high,low,mktcap,symbol,change_,&#10;STR_TO_DATE(date_, '%m/%d/%Y') &#10;,open,STR_TO_DATE(TIME,'%h:%i%p'),ann_range,localtime_,utc_time_ &#10;from raw_mktdata where id not in (select id from mktdata)&#10;&#10;&#10;"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+      </operator>
+      <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL (4)" width="90" x="112" y="210">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="query" value="delete from raw_mktdata where last is null"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Subprocess (Generate Deltas)" width="90" x="313" y="255">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="373" width="455">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="45" y="75">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="select id, last, if(previous is null, previous_close,previous) as prev from &#10;(&#10;select id,last,previous_close, (select md.last from mktdata md WHERE &#10;md.symbol=m1.symbol and md.date_= m1.date_ and&#10;md.time &lt; m1.time&#10;order by md.time desc limit 1) as previous , symbol,date_, time&#10; from mktdata m1 where m1.delta is null and m1.last is not null order by symbol,date_,time&#10;) m2&#10;"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="loop_examples" compatibility="5.2.008" expanded="true" height="76" name="Loop Examples" width="90" x="246" y="165">
+            <parameter key="iteration_macro" value="example"/>
+            <parameter key="parallelize_example_process" value="false"/>
+            <process expanded="true" height="373" width="455">
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro" width="90" x="45" y="75">
+                <parameter key="macro" value="id"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="id"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro (2)" width="90" x="159" y="169">
+                <parameter key="macro" value="last"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="last"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro (3)" width="90" x="205" y="255">
+                <parameter key="macro" value="prev"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="prev"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL (2)" width="90" x="313" y="75">
+                <parameter key="define_connection" value="predefined"/>
+                <parameter key="connection" value="trademiner"/>
+                <parameter key="database_system" value="MySQL"/>
+                <parameter key="query" value="update mktdata set delta = %{last}-%{prev} where id=%{id}"/>
+                <parameter key="prepare_statement" value="false"/>
+                <enumeration key="parameters"/>
+              </operator>
+              <connect from_port="example set" to_op="Extract Macro" to_port="example set"/>
+              <connect from_op="Extract Macro" from_port="example set" to_op="Extract Macro (2)" to_port="example set"/>
+              <connect from_op="Extract Macro (2)" from_port="example set" to_op="Extract Macro (3)" to_port="example set"/>
+              <connect from_op="Extract Macro (3)" from_port="example set" to_op="Execute SQL (2)" to_port="through 1"/>
+              <connect from_op="Execute SQL (2)" from_port="through 1" to_port="example set"/>
+              <portSpacing port="source_example set" spacing="0"/>
+              <portSpacing port="sink_example set" spacing="0"/>
+              <portSpacing port="sink_output 1" spacing="0"/>
+            </process>
+          </operator>
+          <connect from_op="Read Database" from_port="output" to_op="Loop Examples" to_port="example set"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Subprocess (Labeler)" width="90" x="380" y="75">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="373" width="455">
+          <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL (3)" width="90" x="120" y="83">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="query" value="update mktdata mm ,&#10;(&#10;select m5.id,m6.last,m6.symbol,m6.date_,time,  m5.delta,delta_high_,delta_low_ ,&#10;if(percent is null,0,percent) as percent&#10;&#10;from (&#10;select id,delta,delta_high_, delta_low_, &#10;if(delta&gt;0,delta/delta_high_,-delta/delta_low_) percent from (&#10;select id,delta,&#10;if(delta_high is null, delta,delta_high) as delta_high_,&#10;if(delta_low is null, delta,delta_low) as delta_low_&#10;from (&#10;&#10;select id, delta,&#10;&#10;(select max(delta) from mktdata m2 &#10;  &#10;where&#10;m2.symbol=m.symbol and m2.date_=m.date_ &#10;and m2.time&lt;m.time and delta&gt;0&#10;  &#10;  &#10;  ) delta_high,&#10;  &#10;  (select min(delta) from mktdata m2 &#10;  &#10;where&#10;m2.symbol=m.symbol and m2.date_=m.date_ &#10;and m2.time&lt;m.time and delta &lt;0&#10;  &#10;  &#10;  ) delta_low&#10;&#10;from mktdata m&#10; order by symbol,date_,time&#10;&#10;) m3 ) m4) m5, mktdata m6 where m6.id=m5.id&#10;&#10;order by m6.symbol,m6.date_, m6.time ) m7 &#10;&#10;set mm.delta_high=m7.delta_high_,&#10;mm.delta_low=m7.delta_low_,&#10;mm.local_percent_change=percent,&#10;mm.class = label1(percent)&#10;where mm.id=m7.id &#10;&#10;and ( &#10;mm.delta_high  is null or&#10;mm.delta_low is null or&#10;mm.local_percent_change is null or&#10;mm.class is null or&#10;mm.delta_high &lt;&gt; m7.delta_high_ or&#10;mm.delta_low &lt;&gt; m7.delta_low_ or&#10;mm.local_percent_change &lt;&gt; percent or &#10;mm.class &lt;&gt; label1(percent)&#10;)"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+          </operator>
+          <connect from_port="in 1" to_op="Execute SQL (3)" to_port="through 1"/>
+          <connect from_op="Execute SQL (3)" from_port="through 1" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Execute SQL (1)" from_port="through 1" to_op="Execute SQL" to_port="through 1"/>
+      <connect from_op="Execute SQL" from_port="through 1" to_op="Execute SQL (4)" to_port="through 1"/>
+      <connect from_op="Execute SQL (4)" from_port="through 1" to_op="Subprocess (Generate Deltas)" to_port="in 1"/>
+      <connect from_op="Subprocess (Generate Deltas)" from_port="out 1" to_op="Subprocess (Labeler)" to_port="in 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+    </process>
+  </operator>
+</process>

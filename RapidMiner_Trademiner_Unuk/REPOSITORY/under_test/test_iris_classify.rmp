@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="571" width="955">
+      <operator activated="true" class="retrieve" compatibility="5.2.008" expanded="true" height="60" name="Retrieve" width="90" x="60" y="68">
+        <parameter key="repository_entry" value="//Samples/data/Iris"/>
+      </operator>
+      <operator activated="true" class="split_data" compatibility="5.2.008" expanded="true" height="94" name="Split Data" width="90" x="207" y="69">
+        <enumeration key="partitions">
+          <parameter key="ratio" value="0.7"/>
+          <parameter key="ratio" value="0.3"/>
+        </enumeration>
+        <parameter key="sampling_type" value="shuffled sampling"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="decision_tree" compatibility="5.2.008" expanded="true" height="76" name="Decision Tree" width="90" x="380" y="75">
+        <parameter key="criterion" value="gain_ratio"/>
+        <parameter key="minimal_size_for_split" value="4"/>
+        <parameter key="minimal_leaf_size" value="2"/>
+        <parameter key="minimal_gain" value="0.1"/>
+        <parameter key="maximal_depth" value="20"/>
+        <parameter key="confidence" value="0.25"/>
+        <parameter key="number_of_prepruning_alternatives" value="3"/>
+        <parameter key="no_pre_pruning" value="false"/>
+        <parameter key="no_pruning" value="false"/>
+      </operator>
+      <operator activated="true" class="apply_model" compatibility="5.2.008" expanded="true" height="76" name="Apply Model" width="90" x="381" y="258">
+        <list key="application_parameters"/>
+        <parameter key="create_view" value="false"/>
+      </operator>
+      <operator activated="true" class="eval:Performance (Weka)" compatibility="5.0.000" expanded="true" height="60" name="Performance (Weka)" width="90" x="539" y="185">
+        <parameter key="experiment_description" value="%{algo_}, %{ticket_}, %{window_size_},%{experiment_description_}"/>
+        <parameter key="predictionAtt" value="prediction"/>
+        <parameter key="experiment_symbol" value="%{symbol_}"/>
+        <parameter key="accuracy" value="true"/>
+        <parameter key="recall" value="true"/>
+        <parameter key="AUC" value="true"/>
+        <parameter key="f-measure" value="true"/>
+        <parameter key="labels" value="true"/>
+        <parameter key="list_of_labels" value="-2,0,2"/>
+        <parameter key="confusion_matrix" value="true"/>
+        <parameter key="main_algorithm" value="%{algo_}"/>
+        <parameter key="delta" value="%{delta_}"/>
+        <parameter key="database_url" value="jdbc:mysql://%{db_host}/trademiner"/>
+        <parameter key="use_weighted_avg" value="false"/>
+      </operator>
+      <connect from_op="Retrieve" from_port="output" to_op="Split Data" to_port="example set"/>
+      <connect from_op="Split Data" from_port="partition 1" to_op="Decision Tree" to_port="training set"/>
+      <connect from_op="Split Data" from_port="partition 2" to_op="Apply Model" to_port="unlabelled data"/>
+      <connect from_op="Decision Tree" from_port="model" to_op="Apply Model" to_port="model"/>
+      <connect from_op="Apply Model" from_port="labelled data" to_op="Performance (Weka)" to_port="example set"/>
+      <connect from_op="Performance (Weka)" from_port="example set" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>

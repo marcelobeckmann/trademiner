@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="296" width="480">
+      <operator activated="true" class="loop" compatibility="5.2.008" expanded="true" height="76" name="Loop" width="90" x="112" y="75">
+        <parameter key="set_iteration_macro" value="false"/>
+        <parameter key="macro_name" value="iteration"/>
+        <parameter key="macro_start_value" value="1"/>
+        <parameter key="iterations" value="10"/>
+        <parameter key="limit_time" value="false"/>
+        <parameter key="timeout" value="1"/>
+        <parameter key="parallelize_iteration" value="false"/>
+        <process expanded="true" height="372" width="547">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="45" y="75">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="select id,title, content from rss where &#10;content is not null and &#10;content&lt;&gt;''  and&#10;content&lt;&gt;'?'  &#10;-- length(content)&lt;1024 &#10;and (clean_content is null or clean_content ='')&#10;limit 5;"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="loop_examples" compatibility="5.2.008" expanded="true" height="76" name="Loop Examples" width="90" x="179" y="255">
+            <parameter key="iteration_macro" value="example"/>
+            <parameter key="parallelize_example_process" value="false"/>
+            <process expanded="true" height="431" width="521">
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro" width="90" x="45" y="30">
+                <parameter key="macro" value="content_"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="content"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro (2)" width="90" x="180" y="30">
+                <parameter key="macro" value="id_"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="id"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Subprocess" width="90" x="313" y="30">
+                <parameter key="parallelize_nested_chain" value="false"/>
+                <process expanded="true" height="372" width="539">
+                  <operator activated="true" class="text:create_document" compatibility="5.2.003" expanded="true" height="60" name="Create Document" width="90" x="45" y="30">
+                    <parameter key="text" value="%{content_}"/>
+                    <parameter key="add label" value="true"/>
+                    <parameter key="label_type" value="nominal"/>
+                    <parameter key="label_value" value="%{id_}"/>
+                  </operator>
+                  <operator activated="true" class="web:extract_html_text_content" compatibility="5.3.001" expanded="true" height="60" name="Extract Content" width="90" x="179" y="30">
+                    <parameter key="extract_content" value="true"/>
+                    <parameter key="minimum_text_block_length" value="5"/>
+                    <parameter key="override_content_type_information" value="true"/>
+                    <parameter key="neglegt_span_tags" value="true"/>
+                    <parameter key="neglect_p_tags" value="true"/>
+                    <parameter key="neglect_b_tags" value="true"/>
+                    <parameter key="neglect_i_tags" value="true"/>
+                    <parameter key="neglect_br_tags" value="true"/>
+                    <parameter key="ignore_non_html_tags" value="true"/>
+                  </operator>
+                  <operator activated="true" class="text:documents_to_data" compatibility="5.2.003" expanded="true" height="76" name="Documents to Data" width="90" x="315" y="30">
+                    <parameter key="text_attribute" value="Description_"/>
+                    <parameter key="label_attribute" value="label"/>
+                    <parameter key="add_meta_information" value="false"/>
+                    <parameter key="datamanagement" value="double_sparse_array"/>
+                  </operator>
+                  <operator activated="true" class="replace" compatibility="5.2.008" expanded="true" height="76" name="Replace" width="90" x="45" y="210">
+                    <parameter key="attribute_filter_type" value="all"/>
+                    <parameter key="attribute" value=""/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="nominal"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="file_path"/>
+                    <parameter key="block_type" value="single_value"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="single_value"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                    <parameter key="replace_what" value="'"/>
+                  </operator>
+                  <operator activated="true" class="loop_examples" compatibility="5.2.008" expanded="true" height="76" name="Loop Examples (2)" width="90" x="270" y="164">
+                    <parameter key="iteration_macro" value="example1"/>
+                    <parameter key="parallelize_example_process" value="false"/>
+                    <process expanded="true" height="396" width="459">
+                      <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro (3)" width="90" x="112" y="255">
+                        <parameter key="macro" value="clean_content__"/>
+                        <parameter key="macro_type" value="data_value"/>
+                        <parameter key="statistics" value="average"/>
+                        <parameter key="attribute_name" value="Description_"/>
+                        <parameter key="example_index" value="%{example1}"/>
+                      </operator>
+                      <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL" width="90" x="135" y="92">
+                        <parameter key="define_connection" value="predefined"/>
+                        <parameter key="connection" value="trademiner"/>
+                        <parameter key="database_system" value="MySQL"/>
+                        <parameter key="query" value="update rss set clean_content = '%{clean_content__}' where id=%{id_} &#10;"/>
+                        <parameter key="prepare_statement" value="false"/>
+                        <enumeration key="parameters"/>
+                      </operator>
+                      <operator activated="true" class="free_memory" compatibility="5.2.008" expanded="true" height="76" name="Free Memory (5)" width="90" x="369" y="195"/>
+                      <connect from_port="example set" to_op="Extract Macro (3)" to_port="example set"/>
+                      <connect from_op="Extract Macro (3)" from_port="example set" to_op="Execute SQL" to_port="through 1"/>
+                      <connect from_op="Execute SQL" from_port="through 1" to_op="Free Memory (5)" to_port="through 1"/>
+                      <portSpacing port="source_example set" spacing="0"/>
+                      <portSpacing port="sink_example set" spacing="0"/>
+                      <portSpacing port="sink_output 1" spacing="0"/>
+                    </process>
+                  </operator>
+                  <operator activated="true" class="free_memory" compatibility="5.2.008" expanded="true" height="76" name="Free Memory (4)" width="90" x="456" y="257"/>
+                  <connect from_op="Create Document" from_port="output" to_op="Extract Content" to_port="document"/>
+                  <connect from_op="Extract Content" from_port="document" to_op="Documents to Data" to_port="documents 1"/>
+                  <connect from_op="Documents to Data" from_port="example set" to_op="Replace" to_port="example set input"/>
+                  <connect from_op="Replace" from_port="example set output" to_op="Loop Examples (2)" to_port="example set"/>
+                  <connect from_op="Loop Examples (2)" from_port="example set" to_op="Free Memory (4)" to_port="through 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="source_in 2" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                </process>
+              </operator>
+              <operator activated="true" class="unset_macro" compatibility="5.2.008" expanded="true" height="76" name="Unset Macro" width="90" x="343" y="134">
+                <enumeration key="macros">
+                  <parameter key="macro" value="content_"/>
+                  <parameter key="macro" value="id_"/>
+                </enumeration>
+              </operator>
+              <operator activated="true" class="free_memory" compatibility="5.2.008" expanded="true" height="76" name="Free Memory (2)" width="90" x="313" y="345"/>
+              <connect from_port="example set" to_op="Extract Macro" to_port="example set"/>
+              <connect from_op="Extract Macro" from_port="example set" to_op="Extract Macro (2)" to_port="example set"/>
+              <connect from_op="Extract Macro (2)" from_port="example set" to_op="Subprocess" to_port="in 1"/>
+              <connect from_op="Subprocess" from_port="out 1" to_op="Unset Macro" to_port="through 1"/>
+              <connect from_op="Unset Macro" from_port="through 1" to_op="Free Memory (2)" to_port="through 1"/>
+              <portSpacing port="source_example set" spacing="0"/>
+              <portSpacing port="sink_example set" spacing="0"/>
+              <portSpacing port="sink_output 1" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="free_memory" compatibility="5.2.008" expanded="true" height="76" name="Free Memory" width="90" x="313" y="75"/>
+          <connect from_op="Read Database" from_port="output" to_op="Loop Examples" to_port="example set"/>
+          <connect from_op="Loop Examples" from_port="example set" to_op="Free Memory" to_port="through 1"/>
+          <portSpacing port="source_input 1" spacing="0"/>
+          <portSpacing port="sink_output 1" spacing="0"/>
+          <portSpacing port="sink_output 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="free_memory" compatibility="5.2.008" expanded="true" height="76" name="Free Memory (3)" width="90" x="371" y="165"/>
+      <connect from_op="Loop" from_port="output 1" to_op="Free Memory (3)" to_port="through 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+    </process>
+  </operator>
+</process>

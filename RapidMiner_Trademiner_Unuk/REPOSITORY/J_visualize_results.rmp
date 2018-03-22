@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="280" width="413">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV" width="90" x="112" y="30">
+        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character_for_quotes" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value="."/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="112" y="120">
+        <parameter key="macro_attribute" value="macro"/>
+        <parameter key="value_attribute" value="value"/>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Database Symbols" width="90" x="112" y="210">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="400" width="473">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="131" y="208">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="&#10;SELECT 'all_avg' AS symbol, experiment_id , round(AVG(avg_auc),4) AS avg_auc, round(AVG(avg_acc),4) AS avg_acc, round(AVG(avg_fmeasure),4) AS avg_fmeasure, round(STD(avg_fmeasure),4) AS std_fmeasure FROM (&#10;SELECT symbol, experiment_id,SUBSTR(e.description,1,50) AS DESCR, &#10;ROUND(`avg auc`,4) AS avg_auc , ROUND(`avg acc`,4) AS avg_acc , ROUND(`avg fmeasure`,4) AS avg_fmeasure FROM &#10;EXPERIMENT_RESULT_auc4 er , experiment e WHERE &#10;er.experiment_id=e.id AND&#10;er.EXPERIMENT_ID =   (SELECT MAX(id) FROM experiment)&#10;  AND `avg fmeasure`&gt;0.50&#10;) M&#10;UNION &#10;SELECT symbol, experiment_id, &#10;ROUND(`avg auc`,4) AS avg_auc , ROUND(`avg acc`,4) AS avg_acc , ROUND(`avg fmeasure`,4) AS avg_fmeasure, 0 as std_fmeasure FROM &#10;EXPERIMENT_RESULT_auc4 er , experiment e WHERE &#10;er.experiment_id=e.id AND&#10;er.EXPERIMENT_ID =   (SELECT MAX(id) FROM experiment)&#10;  AND `avg fmeasure`&gt;0.50&#10;&#10;&#10;&#10;&#10;-- SELECT delta, a.`avg fmeasure`, e.algo  FROM &#10;-- experiment_result_auc2 a , experiment e &#10;-- WHERE a.`EXPERIMENT_ID`=e.`ID` AND algo IS NOT NULL&#10;-- ORDER BY a.`avg fmeasure` DESC"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <connect from_op="Read Database" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV" width="90" x="306" y="210">
+        <parameter key="csv_file" value="%{outputdir_}/RESULTS.CSV"/>
+        <parameter key="column_separator" value="&#9;"/>
+        <parameter key="write_attribute_names" value="true"/>
+        <parameter key="quote_nominal_values" value="true"/>
+        <parameter key="format_date_attributes" value="true"/>
+        <parameter key="append_to_file" value="false"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <connect from_op="Read CSV" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Database Symbols" to_port="in 1"/>
+      <connect from_op="Read Database Symbols" from_port="out 1" to_op="Write CSV" to_port="input"/>
+      <connect from_op="Write CSV" from_port="through" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>

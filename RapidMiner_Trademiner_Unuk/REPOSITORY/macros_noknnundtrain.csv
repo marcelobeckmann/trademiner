@@ -1,0 +1,45 @@
+macro;value
+index_;DJIA
+experiment_description_;all, NO KNNUND TRAIN/TEST, AGG OPT, KEEP FILES, SVM RBF, k=21 t=2 ,TRAINING INTERVAL 6M, RESTRICTIVE ALIGNMENT WITH DELTA 00:01:00,WEIGHT BY X2, 0.2, COSINE, N3GRAM,FIVE-DAYS BY FIVE-DAYS, SEPARATED TRAIN/TEST FROM >31/MAY TO <=06/SET, TF/IDF,GRID-SEARCH FOR C & GAMMA WITH FMEASURE, 2 CLASSES [-20]2, NO WEIGHTED AVG FOR PERFORMANCE, LIBSVM GRID-SEARCH ,NO TIMEZONE ADJUST,NEW_MACRO_SCHEMA,0_SHIFT, MKTDATA, CHI2
+window_size_;00:01:00
+#ticket_;20151222
+ticket_;20150903
+aligner_impl_=RestrictiveAlignment
+db_host;localhost
+delta_;1
+#put all for all symbols
+#partial
+#all
+portfolio_;all
+k_;21
+t_;2
+mt_;4
+att_weight_;0.10
+#c:/home/nelson/rm
+outputdir_;d:/var/tmp/output
+run_;0
+algo_;libsvm
+#the table name where the result will be written
+outputtable_;experiment_result_auc4
+###########################################################
+# class definition parameters                             #
+###########################################################
+#this "_02" is for "improved one against all" schema only, keep with empty for normal modelling
+model_file_suffix_;_NOKNN
+model_file_noknn_;_NOKNN
+#keep "-2,0,2" to consider all classes
+#keep "0,2" to use "one against all" schema (any of them)
+labels_;0,2
+#keep "label" to consider all classes or "improved one against all" schema
+#keep "IF(label='-2','2',label) AS label" to use "one against all" schema
+label_definition_;IF(label='-2','0',label) AS label
+min_performance_;0.50
+###########################################################
+# YYYY/MM/DD
+#next_trade_date_;2013/06/03
+#end_test_date_;2013/06/07
+#outdir_;D0603
+training_interval_;6
+###########################################################
+sim_experiment_;338
+sim_min_performance_;0.65

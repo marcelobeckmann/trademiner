@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="373" width="413">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="300">
+        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character_for_quotes" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value="."/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="45" y="165">
+        <parameter key="macro_attribute" value="macro"/>
+        <parameter key="value_attribute" value="value"/>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Database (4)" width="90" x="121" y="26">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="353" width="400">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (3)" width="90" x="121" y="31">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT symbol from symbol s where status =1 and&#10;s.`index`='%{index_}'  AND (index_exit_date IS NULL OR NOW() BETWEEN index_entry_date AND index_exit_date)&#10;AND (&#10;select count(*) from link where link.symbol=s.symbol and link.status=1  &#10;)!=0&#10;order by symbol&#10;"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <connect from_op="Read Database (3)" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="loop_values" compatibility="5.2.008" expanded="true" height="94" name="Loop Values (2)" width="90" x="246" y="120">
+        <parameter key="attribute" value="symbol"/>
+        <parameter key="iteration_macro" value="symbol__"/>
+        <parameter key="parallelize_iteration" value="false"/>
+        <process expanded="true" height="488" width="711">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (2)" width="90" x="45" y="30">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT id,symbol, url&#10;FROM link where status =1 and symbol='%{symbol__}'  order by id"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="loop_examples" compatibility="5.2.008" expanded="true" height="76" name="Loop Examples" width="90" x="380" y="255">
+            <parameter key="iteration_macro" value="example"/>
+            <parameter key="parallelize_example_process" value="false"/>
+            <process expanded="true" height="566" width="613">
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro (2)" width="90" x="112" y="120">
+                <parameter key="macro" value="link_id__"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="id"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro (3)" width="90" x="160" y="293">
+                <parameter key="macro" value="url__"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="url"/>
+                <parameter key="example_index" value="%{example}"/>
+              </operator>
+              <operator activated="true" class="handle_exception" compatibility="5.2.008" expanded="true" height="94" name="Handle Exception" width="90" x="313" y="165">
+                <parameter key="exception_macro" value="exception_"/>
+                <parameter key="parallelize_try" value="false"/>
+                <parameter key="parallelize_catch" value="false"/>
+                <process expanded="true" height="811" width="435">
+                  <operator activated="true" class="web:read_rss" compatibility="5.3.001" expanded="true" height="60" name="Read RSS Feed (2)" width="90" x="45" y="30">
+                    <parameter key="url" value="%{url__}"/>
+                    <parameter key="random_user_agent" value="true"/>
+                    <parameter key="connection_timeout" value="90000"/>
+                    <parameter key="read_timeout" value="90000"/>
+                  </operator>
+                  <operator activated="true" class="generate_attributes" compatibility="5.2.008" expanded="true" height="76" name="Generate Attributes" width="90" x="180" y="30">
+                    <list key="function_descriptions">
+                      <parameter key="symbol" value="&quot;%{symbol__}&quot;"/>
+                      <parameter key="link_id" value="%{link_id__}"/>
+                    </list>
+                    <parameter key="use_standard_constants" value="true"/>
+                    <parameter key="keep_all" value="true"/>
+                  </operator>
+                  <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database (3)" width="90" x="313" y="30">
+                    <parameter key="define_connection" value="predefined"/>
+                    <parameter key="connection" value="trademiner"/>
+                    <parameter key="database_system" value="MySQL"/>
+                    <parameter key="use_default_schema" value="true"/>
+                    <parameter key="table_name" value="temp_rss"/>
+                    <parameter key="overwrite_mode" value="overwrite"/>
+                    <parameter key="set_default_varchar_length" value="false"/>
+                    <parameter key="default_varchar_length" value="128"/>
+                    <parameter key="add_generated_primary_keys" value="false"/>
+                    <parameter key="db_key_attribute_name" value="generated_primary_key"/>
+                    <parameter key="batch_size" value="10"/>
+                  </operator>
+                  <operator activated="false" breakpoints="before" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database (4)" width="90" x="179" y="165">
+                    <parameter key="define_connection" value="predefined"/>
+                    <parameter key="connection" value="trademiner"/>
+                    <parameter key="database_system" value="MySQL"/>
+                    <parameter key="use_default_schema" value="true"/>
+                    <parameter key="table_name" value="temp_rss_history"/>
+                    <parameter key="overwrite_mode" value="append"/>
+                    <parameter key="set_default_varchar_length" value="false"/>
+                    <parameter key="default_varchar_length" value="128"/>
+                    <parameter key="add_generated_primary_keys" value="false"/>
+                    <parameter key="db_key_attribute_name" value="generated_primary_key"/>
+                    <parameter key="batch_size" value="10"/>
+                  </operator>
+                  <operator activated="true" class="multiply" compatibility="5.2.008" expanded="true" height="94" name="Multiply (2)" width="90" x="45" y="210"/>
+                  <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="94" name="Execute SQL" width="90" x="179" y="435">
+                    <parameter key="define_connection" value="predefined"/>
+                    <parameter key="connection" value="trademiner"/>
+                    <parameter key="database_system" value="MySQL"/>
+                    <parameter key="query" value="&#10; UPDATE TEMP_RSS SET LINK=  &#10; substr(link,instr(substr(link,2),'http')+1) &#10; WHERE link is not null and instr(substr(link,2),'http')&lt;&gt;0&#10; &#10; &#10; &#10; &#10; "/>
+                    <parameter key="prepare_statement" value="false"/>
+                    <enumeration key="parameters"/>
+                  </operator>
+                  <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="94" name="Subprocess" width="90" x="313" y="210">
+                    <parameter key="parallelize_nested_chain" value="false"/>
+                    <process expanded="true" height="566" width="536">
+                      <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="45" y="30">
+                        <parameter key="define_connection" value="predefined"/>
+                        <parameter key="connection" value="trademiner"/>
+                        <parameter key="database_system" value="MySQL"/>
+                        <parameter key="define_query" value="query"/>
+                        <parameter key="query" value="SELECT Published,Author,Title,if(length(Content)&lt;1024,null,Content) as Content,Link,Categories,symbol,&#10; now() as localtime_ , CONVERT_TZ(Published,'America/New_York','UTC') AS utc_time_, link_id FROM temp_rss tr&#10;WHERE (SELECT count(*) FROM rss r where tr.symbol=r.symbol and tr.link=r.link)=0"/>
+                        <parameter key="use_default_schema" value="true"/>
+                        <parameter key="prepare_statement" value="false"/>
+                        <enumeration key="parameters"/>
+                        <parameter key="datamanagement" value="double_array"/>
+                      </operator>
+                      <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database (2)" width="90" x="180" y="30">
+                        <parameter key="define_connection" value="predefined"/>
+                        <parameter key="connection" value="trademiner"/>
+                        <parameter key="database_system" value="MySQL"/>
+                        <parameter key="use_default_schema" value="true"/>
+                        <parameter key="table_name" value="rss"/>
+                        <parameter key="overwrite_mode" value="append"/>
+                        <parameter key="set_default_varchar_length" value="false"/>
+                        <parameter key="default_varchar_length" value="128"/>
+                        <parameter key="add_generated_primary_keys" value="false"/>
+                        <parameter key="db_key_attribute_name" value="generated_primary_key"/>
+                        <parameter key="batch_size" value="5"/>
+                      </operator>
+                      <connect from_op="Read Database" from_port="output" to_op="Write Database (2)" to_port="input"/>
+                      <portSpacing port="source_in 1" spacing="0"/>
+                      <portSpacing port="source_in 2" spacing="0"/>
+                      <portSpacing port="source_in 3" spacing="0"/>
+                      <portSpacing port="sink_out 1" spacing="0"/>
+                      <portSpacing port="sink_out 2" spacing="0"/>
+                    </process>
+                  </operator>
+                  <connect from_op="Read RSS Feed (2)" from_port="output" to_op="Generate Attributes" to_port="example set input"/>
+                  <connect from_op="Generate Attributes" from_port="example set output" to_op="Write Database (3)" to_port="input"/>
+                  <connect from_op="Write Database (3)" from_port="through" to_op="Multiply (2)" to_port="input"/>
+                  <connect from_op="Multiply (2)" from_port="output 1" to_op="Subprocess" to_port="in 1"/>
+                  <connect from_op="Multiply (2)" from_port="output 2" to_op="Execute SQL" to_port="through 2"/>
+                  <connect from_op="Execute SQL" from_port="through 1" to_op="Subprocess" to_port="in 2"/>
+                  <connect from_op="Subprocess" from_port="out 1" to_port="out 2"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="source_in 2" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                  <portSpacing port="sink_out 3" spacing="0"/>
+                </process>
+                <process expanded="true" height="811" width="165">
+                  <operator activated="true" class="print_to_console" compatibility="5.2.008" expanded="true" height="76" name="Print to Console" width="90" x="45" y="30">
+                    <parameter key="log_value" value="######## ERROR OBTAINING RSS: %{url__} %{exception_}"/>
+                  </operator>
+                  <connect from_port="in 1" to_op="Print to Console" to_port="through 1"/>
+                  <connect from_op="Print to Console" from_port="through 1" to_port="out 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="source_in 2" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                  <portSpacing port="sink_out 3" spacing="0"/>
+                </process>
+              </operator>
+              <connect from_port="example set" to_op="Extract Macro (2)" to_port="example set"/>
+              <connect from_op="Extract Macro (2)" from_port="example set" to_op="Extract Macro (3)" to_port="example set"/>
+              <connect from_op="Extract Macro (3)" from_port="example set" to_op="Handle Exception" to_port="in 1"/>
+              <portSpacing port="source_example set" spacing="0"/>
+              <portSpacing port="sink_example set" spacing="0"/>
+              <portSpacing port="sink_output 1" spacing="0"/>
+            </process>
+          </operator>
+          <connect from_op="Read Database (2)" from_port="output" to_op="Loop Examples" to_port="example set"/>
+          <connect from_op="Loop Examples" from_port="example set" to_port="out 2"/>
+          <portSpacing port="source_example set" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+          <portSpacing port="sink_out 3" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Database (4)" to_port="in 1"/>
+      <connect from_op="Read Database (4)" from_port="out 1" to_op="Loop Values (2)" to_port="example set"/>
+      <connect from_op="Loop Values (2)" from_port="out 1" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="108"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>

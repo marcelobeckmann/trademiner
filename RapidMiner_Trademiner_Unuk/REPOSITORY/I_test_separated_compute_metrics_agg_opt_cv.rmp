@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Root">
+    <description>AFTER THE CSV AND MODELS GENERATED, THIS STEP PERFORMS A TEST AND STORE THE RESULTS IN EXPERIMENT_RESULT TABLE AND IN *TESTED_SMALL.CSV FILES.</description>
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="522" width="614">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="30">
+        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character_for_quotes" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value="."/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="179" y="30">
+        <parameter key="macro_attribute" value="macro"/>
+        <parameter key="value_attribute" value="value"/>
+      </operator>
+      <operator activated="true" class="set_macros" compatibility="5.2.008" expanded="true" height="76" name="Set Macros w1" width="90" x="242" y="353">
+        <list key="macros">
+          <parameter key="experiment_description_" value="ALL, KNN_UND, BASELINE #763,  AGGREGATION w/ removal to simulation,delta=1, REDOING OPT PARM WITH _KNNUND suffix files, BLACKLIST,KEEP FILES, SVM RBF, k=21 t=2 ,TRAINING INTERVAL 6M, RESTRICTIVE ALIGNMENT WITH DELTA 00:02:00,WEIGHT BY X2, 0.2, COSINE, N3GRAM,FIVE-DAYS BY FIVE-DAYS, SEPARATED TRAIN/TEST FROM &gt;31/MAY TO &lt;=06/SET, TF/IDF,GRID-SEARCH FOR C &amp; GAMMA WITH FMEASURE, 2 CLASSES [-20]2, NO WEIGHTED AVG FOR PERFORMANCE, LIBSVM GRID-SEARCH ,NO TIMEZONE ADJUST,NEW_MACRO_SCHEMA,0_SHIFT, MKTDATA, CHI2"/>
+          <parameter key="window_size_" value="00:01:00"/>
+          <parameter key="ticket_" value="20150903"/>
+          <parameter key="delta_" value="1"/>
+        </list>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Symbols" width="90" x="313" y="30">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="396" width="388">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (3)" width="90" x="45" y="75">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
+            <parameter key="username" value="root"/>
+            <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1&#10;AND  s.exchange='NYSE'  &#10;-- ajustar isso&#10;and s.portfolio LIKE '%%{portfolio_}%'&#10;-- and s.symbol not in ('AA','AXP')&#10;ORDER BY s.symbol&#10;&#10;"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <connect from_op="Read Database (3)" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="print_to_console" compatibility="5.2.008" expanded="true" height="76" name="Print to Console (2)" width="90" x="447" y="30">
+        <parameter key="log_value" value="###&gt;%{model_file_suffix_}&lt;##########################################"/>
+      </operator>
+      <operator activated="true" class="loop_values" compatibility="5.2.008" expanded="true" height="76" name="Loop Values" width="90" x="447" y="165">
+        <parameter key="attribute" value="symbol"/>
+        <parameter key="iteration_macro" value="symbol_"/>
+        <parameter key="parallelize_iteration" value="false"/>
+        <process expanded="true" height="566" width="882">
+          <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Dummy Id" width="90" x="45" y="165">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="404" width="744">
+              <operator activated="false" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (2)" width="90" x="45" y="120">
+                <parameter key="define_connection" value="predefined"/>
+                <parameter key="connection" value="trademiner"/>
+                <parameter key="database_system" value="MySQL"/>
+                <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
+                <parameter key="username" value="root"/>
+                <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+                <parameter key="define_query" value="query"/>
+                <parameter key="query" value="SELECT s.dummy_id FROM symbol s WHERE s.symbol= '%{symbol_}'&#10;&#10;"/>
+                <parameter key="use_default_schema" value="true"/>
+                <parameter key="prepare_statement" value="false"/>
+                <enumeration key="parameters"/>
+                <parameter key="datamanagement" value="double_array"/>
+              </operator>
+              <operator activated="false" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro" width="90" x="380" y="120">
+                <parameter key="macro" value="dummy_id_"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="dummy_id"/>
+                <parameter key="example_index" value="1"/>
+              </operator>
+              <connect from_op="Read Database (2)" from_port="output" to_op="Extract Macro" to_port="example set"/>
+              <connect from_op="Extract Macro" from_port="example set" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="print_to_console" compatibility="5.2.008" expanded="true" height="76" name="Print to Console" width="90" x="45" y="30">
+            <parameter key="log_value" value="###  symbol %{symbol_} %{outputdir_}/%{symbol_}_%{delta_}_%{algo_}_TESTED_SMALL.CSV"/>
+          </operator>
+          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Set Parameters" width="90" x="179" y="30">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="577" width="786">
+              <operator activated="true" class="read_parameters" compatibility="5.2.008" expanded="true" height="60" name="Read Parameters" width="90" x="45" y="210">
+                <parameter key="parameter_file" value="/home/nelson/rm/REPOSITORY/parms/%{symbol_}_parm_evo.parm"/>
+              </operator>
+              <operator activated="true" class="set_parameters" compatibility="5.2.008" expanded="true" height="60" name="Set Parameters (2)" width="90" x="179" y="210">
+                <list key="name_map">
+                  <parameter key="LIBSVM" value="LIBSVM_"/>
+                </list>
+              </operator>
+              <connect from_port="in 1" to_port="out 1"/>
+              <connect from_op="Read Parameters" from_port="output" to_op="Set Parameters (2)" to_port="parameter set"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Train" width="90" x="313" y="30">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="624" width="1018">
+              <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV (3)" width="90" x="45" y="30">
+                <parameter key="csv_file" value="%{outputdir_}/D0603/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TRAIN.CSV"/>
+                <parameter key="column_separators" value=";"/>
+                <parameter key="trim_lines" value="false"/>
+                <parameter key="use_quotes" value="true"/>
+                <parameter key="quotes_character" value="&quot;"/>
+                <parameter key="escape_character_for_quotes" value="\"/>
+                <parameter key="skip_comments" value="false"/>
+                <parameter key="comment_characters" value="#"/>
+                <parameter key="parse_numbers" value="true"/>
+                <parameter key="decimal_character" value="."/>
+                <parameter key="grouped_digits" value="false"/>
+                <parameter key="grouping_character" value=","/>
+                <parameter key="date_format" value=""/>
+                <parameter key="first_row_as_names" value="true"/>
+                <list key="annotations"/>
+                <parameter key="time_zone" value="SYSTEM"/>
+                <parameter key="locale" value="English (United States)"/>
+                <parameter key="encoding" value="SYSTEM"/>
+                <list key="data_set_meta_data_information"/>
+                <parameter key="read_not_matching_values_as_missings" value="true"/>
+                <parameter key="datamanagement" value="double_array"/>
+              </operator>
+              <operator activated="true" class="numerical_to_polynominal" compatibility="5.2.008" expanded="true" height="76" name="Numerical to Polynominal (2)" width="90" x="180" y="30">
+                <parameter key="attribute_filter_type" value="single"/>
+                <parameter key="attribute" value="label"/>
+                <parameter key="attributes" value=""/>
+                <parameter key="use_except_expression" value="false"/>
+                <parameter key="value_type" value="numeric"/>
+                <parameter key="use_value_type_exception" value="false"/>
+                <parameter key="except_value_type" value="real"/>
+                <parameter key="block_type" value="value_series"/>
+                <parameter key="use_block_type_exception" value="false"/>
+                <parameter key="except_block_type" value="value_series_end"/>
+                <parameter key="invert_selection" value="false"/>
+                <parameter key="include_special_attributes" value="false"/>
+              </operator>
+              <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role Label" width="90" x="315" y="30">
+                <parameter key="name" value="label"/>
+                <parameter key="target_role" value="label"/>
+                <list key="set_additional_roles"/>
+              </operator>
+              <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role Id" width="90" x="666" y="30">
+                <parameter key="name" value="id"/>
+                <parameter key="target_role" value="id"/>
+                <list key="set_additional_roles"/>
+              </operator>
+              <connect from_op="Read CSV (3)" from_port="output" to_op="Numerical to Polynominal (2)" to_port="example set input"/>
+              <connect from_op="Numerical to Polynominal (2)" from_port="example set output" to_op="Set Role Label" to_port="example set input"/>
+              <connect from_op="Set Role Label" from_port="example set output" to_op="Set Role Id" to_port="example set input"/>
+              <connect from_op="Set Role Id" from_port="example set output" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="set_macro" compatibility="5.2.008" expanded="true" height="76" name="Set Macro" width="90" x="447" y="30">
+            <parameter key="macro" value="experiment_description_"/>
+            <parameter key="value" value="AGG GA"/>
+          </operator>
+          <operator activated="true" breakpoints="after" class="optimize_parameters_evolutionary" compatibility="5.2.008" expanded="true" height="94" name="Optimize Parameters (Evolutionary)" width="90" x="246" y="165">
+            <list key="parameters">
+              <parameter key="Aggregate Decision By TradeDatetime.minority_boolean_operator" value="[1.0;6.0]"/>
+              <parameter key="Aggregate Decision By TradeDatetime.minority_threshold" value="[-1.0;15]"/>
+              <parameter key="Aggregate Decision By TradeDatetime.majority_boolean_operator" value="[1.0;6.0]"/>
+              <parameter key="Aggregate Decision By TradeDatetime.majority_threshold" value="[-1.0;20]"/>
+            </list>
+            <parameter key="max_generations" value="1"/>
+            <parameter key="use_early_stopping" value="false"/>
+            <parameter key="generations_without_improval" value="2"/>
+            <parameter key="specify_population_size" value="true"/>
+            <parameter key="population_size" value="3"/>
+            <parameter key="keep_best" value="true"/>
+            <parameter key="mutation_type" value="gaussian_mutation"/>
+            <parameter key="selection_type" value="tournament"/>
+            <parameter key="tournament_fraction" value="0.25"/>
+            <parameter key="crossover_prob" value="0.9"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <parameter key="show_convergence_plot" value="true"/>
+            <parameter key="parallelize_optimization_process" value="false"/>
+            <process expanded="true" height="656" width="1022">
+              <operator activated="true" class="x_validation" compatibility="5.2.008" expanded="true" height="112" name="Validation" width="90" x="337" y="148">
+                <parameter key="create_complete_model" value="false"/>
+                <parameter key="average_performances_only" value="true"/>
+                <parameter key="leave_one_out" value="false"/>
+                <parameter key="number_of_validations" value="5"/>
+                <parameter key="sampling_type" value="stratified sampling"/>
+                <parameter key="use_local_random_seed" value="false"/>
+                <parameter key="local_random_seed" value="1992"/>
+                <parameter key="parallelize_training" value="false"/>
+                <parameter key="parallelize_testing" value="false"/>
+                <process expanded="true" height="807" width="317">
+                  <operator activated="false" class="support_vector_machine_libsvm" compatibility="5.2.008" expanded="true" height="76" name="LIBSVM_" width="90" x="112" y="30">
+                    <parameter key="svm_type" value="C-SVC"/>
+                    <parameter key="kernel_type" value="rbf"/>
+                    <parameter key="degree" value="3"/>
+                    <parameter key="gamma" value="3.0"/>
+                    <parameter key="coef0" value="0.0"/>
+                    <parameter key="C" value="390.0"/>
+                    <parameter key="nu" value="0.5"/>
+                    <parameter key="cache_size" value="80"/>
+                    <parameter key="epsilon" value="0.0010"/>
+                    <parameter key="p" value="0.1"/>
+                    <list key="class_weights">
+                      <parameter key="2" value="0.7"/>
+                      <parameter key="0" value="0.3"/>
+                    </list>
+                    <parameter key="shrinking" value="true"/>
+                    <parameter key="calculate_confidences" value="true"/>
+                    <parameter key="confidence_for_multiclass" value="false"/>
+                  </operator>
+                  <operator activated="true" class="read_model" compatibility="5.2.008" expanded="true" height="60" name="Read Model" width="90" x="79" y="215">
+                    <parameter key="model_file" value="%{outputdir_}/D0603/%{delta_}_%{algo_}_%{symbol_}_%{ticket_}%{model_file_noknn_}.model"/>
+                  </operator>
+                  <connect from_op="Read Model" from_port="output" to_port="model"/>
+                  <portSpacing port="source_training" spacing="0"/>
+                  <portSpacing port="sink_model" spacing="0"/>
+                  <portSpacing port="sink_through 1" spacing="0"/>
+                </process>
+                <process expanded="true" height="807" width="701">
+                  <operator activated="true" class="apply_model" compatibility="5.2.008" expanded="true" height="76" name="Apply Model" width="90" x="45" y="30">
+                    <list key="application_parameters"/>
+                    <parameter key="create_view" value="false"/>
+                  </operator>
+                  <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Test Set" width="90" x="246" y="30">
+                    <parameter key="parallelize_nested_chain" value="false"/>
+                    <process expanded="true" height="577" width="967">
+                      <operator activated="true" class="materialize_data" compatibility="5.2.008" expanded="true" height="76" name="Materialize Data" width="90" x="45" y="30">
+                        <parameter key="datamanagement" value="double_array"/>
+                      </operator>
+                      <operator activated="true" class="select_attributes" compatibility="5.2.008" expanded="true" height="76" name="Select Attributes (3)" width="90" x="222" y="105">
+                        <parameter key="attribute_filter_type" value="subset"/>
+                        <parameter key="attribute" value=""/>
+                        <parameter key="attributes" value="|id|label|prediction"/>
+                        <parameter key="use_except_expression" value="false"/>
+                        <parameter key="value_type" value="attribute_value"/>
+                        <parameter key="use_value_type_exception" value="false"/>
+                        <parameter key="except_value_type" value="time"/>
+                        <parameter key="block_type" value="attribute_block"/>
+                        <parameter key="use_block_type_exception" value="false"/>
+                        <parameter key="except_block_type" value="value_matrix_row_start"/>
+                        <parameter key="invert_selection" value="false"/>
+                        <parameter key="include_special_attributes" value="false"/>
+                      </operator>
+                      <operator activated="true" class="rename" compatibility="5.2.008" expanded="true" height="76" name="Rename (3)" width="90" x="27" y="147">
+                        <parameter key="old_name" value="prediction(label)"/>
+                        <parameter key="new_name" value="prediction"/>
+                        <list key="rename_additional_attributes"/>
+                      </operator>
+                      <operator activated="true" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV" width="90" x="112" y="255">
+                        <parameter key="csv_file" value="%{outputdir_}/TMP_TESTED_10FOLD.CSV"/>
+                        <parameter key="column_separator" value=";"/>
+                        <parameter key="write_attribute_names" value="true"/>
+                        <parameter key="quote_nominal_values" value="true"/>
+                        <parameter key="format_date_attributes" value="true"/>
+                        <parameter key="append_to_file" value="false"/>
+                        <parameter key="encoding" value="SYSTEM"/>
+                      </operator>
+                      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Subprocess" width="90" x="246" y="255">
+                        <parameter key="parallelize_nested_chain" value="false"/>
+                        <process expanded="true" height="577" width="804">
+                          <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV (2)" width="90" x="190" y="66">
+                            <parameter key="csv_file" value="%{outputdir_}/TMP_TESTED_10FOLD.CSV"/>
+                            <parameter key="column_separators" value=";"/>
+                            <parameter key="trim_lines" value="false"/>
+                            <parameter key="use_quotes" value="true"/>
+                            <parameter key="quotes_character" value="&quot;"/>
+                            <parameter key="escape_character_for_quotes" value="\"/>
+                            <parameter key="skip_comments" value="false"/>
+                            <parameter key="comment_characters" value="#"/>
+                            <parameter key="parse_numbers" value="false"/>
+                            <parameter key="decimal_character" value="."/>
+                            <parameter key="grouped_digits" value="false"/>
+                            <parameter key="grouping_character" value=","/>
+                            <parameter key="date_format" value=""/>
+                            <parameter key="first_row_as_names" value="true"/>
+                            <list key="annotations"/>
+                            <parameter key="time_zone" value="SYSTEM"/>
+                            <parameter key="locale" value="English (United States)"/>
+                            <parameter key="encoding" value="SYSTEM"/>
+                            <list key="data_set_meta_data_information"/>
+                            <parameter key="read_not_matching_values_as_missings" value="true"/>
+                            <parameter key="datamanagement" value="double_array"/>
+                          </operator>
+                          <connect from_op="Read CSV (2)" from_port="output" to_port="out 1"/>
+                          <portSpacing port="source_in 1" spacing="0"/>
+                          <portSpacing port="source_in 2" spacing="0"/>
+                          <portSpacing port="sink_out 1" spacing="0"/>
+                          <portSpacing port="sink_out 2" spacing="0"/>
+                        </process>
+                      </operator>
+                      <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role" width="90" x="450" y="30">
+                        <parameter key="name" value="id"/>
+                        <parameter key="target_role" value="id"/>
+                        <list key="set_additional_roles">
+                          <parameter key="prediction" value="prediction"/>
+                          <parameter key="label" value="label"/>
+                        </list>
+                      </operator>
+                      <operator activated="false" class="filter_examples" compatibility="5.2.008" expanded="true" height="76" name="Filter Examples" width="90" x="581" y="30">
+                        <parameter key="condition_class" value="attribute_value_filter"/>
+                        <parameter key="parameter_string" value="id != %{dummy_id_}"/>
+                        <parameter key="invert_filter" value="false"/>
+                      </operator>
+                      <connect from_port="in 1" to_op="Materialize Data" to_port="example set input"/>
+                      <connect from_op="Materialize Data" from_port="example set output" to_op="Select Attributes (3)" to_port="example set input"/>
+                      <connect from_op="Select Attributes (3)" from_port="example set output" to_op="Rename (3)" to_port="example set input"/>
+                      <connect from_op="Rename (3)" from_port="example set output" to_op="Write CSV" to_port="input"/>
+                      <connect from_op="Write CSV" from_port="through" to_op="Subprocess" to_port="in 1"/>
+                      <connect from_op="Subprocess" from_port="out 1" to_op="Set Role" to_port="example set input"/>
+                      <connect from_op="Set Role" from_port="example set output" to_port="out 1"/>
+                      <portSpacing port="source_in 1" spacing="0"/>
+                      <portSpacing port="source_in 2" spacing="0"/>
+                      <portSpacing port="sink_out 1" spacing="0"/>
+                      <portSpacing port="sink_out 2" spacing="0"/>
+                    </process>
+                  </operator>
+                  <operator activated="true" class="tutorial:Aggregate Decision By TradeDatetime" compatibility="5.0.000" expanded="true" height="76" name="Aggregate Decision By TradeDatetime" width="90" x="45" y="210">
+                    <parameter key="prediction_att" value="prediction"/>
+                    <parameter key="minority_boolean_operator" value="2"/>
+                    <parameter key="minority_threshold" value="0"/>
+                    <parameter key="majority_boolean_operator" value="2"/>
+                    <parameter key="conjunction_boolean_operator" value="1"/>
+                    <parameter key="majority_threshold" value="9"/>
+                    <parameter key="check_black_list" value="false"/>
+                    <parameter key="remove_duplicates_at_end" value="false"/>
+                    <parameter key="verbose" value="false"/>
+                    <parameter key="parameters_to_string" value="&lt;=0.0 &amp; &lt;=9.0"/>
+                    <parameter key="use_percents" value="false"/>
+                    <parameter key="minority_threshold_percent" value="0.1"/>
+                    <parameter key="majority_threshold_percent" value="0.9"/>
+                  </operator>
+                  <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Adjust to Performance" width="90" x="313" y="210">
+                    <parameter key="parallelize_nested_chain" value="false"/>
+                    <process expanded="true" height="577" width="786">
+                      <operator activated="true" class="generate_attributes" compatibility="5.2.008" expanded="true" height="76" name="Generate Attributes" width="90" x="45" y="30">
+                        <list key="function_descriptions">
+                          <parameter key="label2" value="str(label)"/>
+                          <parameter key="prediction2" value="str(prediction)"/>
+                        </list>
+                        <parameter key="use_standard_constants" value="true"/>
+                        <parameter key="keep_all" value="true"/>
+                      </operator>
+                      <operator activated="true" class="select_attributes" compatibility="5.2.008" expanded="true" height="76" name="Select Attributes (2)" width="90" x="179" y="30">
+                        <parameter key="attribute_filter_type" value="subset"/>
+                        <parameter key="attribute" value=""/>
+                        <parameter key="attributes" value="|label2|prediction2|id"/>
+                        <parameter key="use_except_expression" value="false"/>
+                        <parameter key="value_type" value="attribute_value"/>
+                        <parameter key="use_value_type_exception" value="false"/>
+                        <parameter key="except_value_type" value="time"/>
+                        <parameter key="block_type" value="attribute_block"/>
+                        <parameter key="use_block_type_exception" value="false"/>
+                        <parameter key="except_block_type" value="value_matrix_row_start"/>
+                        <parameter key="invert_selection" value="false"/>
+                        <parameter key="include_special_attributes" value="true"/>
+                      </operator>
+                      <operator activated="true" class="rename" compatibility="5.2.008" expanded="true" height="76" name="Rename (2)" width="90" x="313" y="30">
+                        <parameter key="old_name" value="label2"/>
+                        <parameter key="new_name" value="label"/>
+                        <list key="rename_additional_attributes">
+                          <parameter key="prediction2" value="prediction"/>
+                        </list>
+                      </operator>
+                      <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (2)" width="90" x="447" y="30">
+                        <parameter key="name" value="label"/>
+                        <parameter key="target_role" value="label"/>
+                        <list key="set_additional_roles">
+                          <parameter key="id" value="id"/>
+                          <parameter key="prediction" value="prediction"/>
+                        </list>
+                      </operator>
+                      <operator activated="false" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV (2)" width="90" x="45" y="165">
+                        <parameter key="csv_file" value="%{outputdir_}/TMP_TESTED_10FOLD_AGG.CSV"/>
+                        <parameter key="column_separator" value=";"/>
+                        <parameter key="write_attribute_names" value="true"/>
+                        <parameter key="quote_nominal_values" value="true"/>
+                        <parameter key="format_date_attributes" value="true"/>
+                        <parameter key="append_to_file" value="false"/>
+                        <parameter key="encoding" value="SYSTEM"/>
+                      </operator>
+                      <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Subprocess (3)" width="90" x="179" y="300">
+                        <parameter key="parallelize_nested_chain" value="false"/>
+                        <process expanded="true" height="595" width="804">
+                          <operator activated="false" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV (4)" width="90" x="45" y="30">
+                            <parameter key="csv_file" value="D:\var\tmp\output\TMP_TESTED_10FOLD_AGG.CSV"/>
+                            <parameter key="column_separators" value=";"/>
+                            <parameter key="trim_lines" value="false"/>
+                            <parameter key="use_quotes" value="true"/>
+                            <parameter key="quotes_character" value="&quot;"/>
+                            <parameter key="escape_character_for_quotes" value="\"/>
+                            <parameter key="skip_comments" value="false"/>
+                            <parameter key="comment_characters" value="#"/>
+                            <parameter key="parse_numbers" value="false"/>
+                            <parameter key="decimal_character" value="."/>
+                            <parameter key="grouped_digits" value="false"/>
+                            <parameter key="grouping_character" value=","/>
+                            <parameter key="date_format" value=""/>
+                            <parameter key="first_row_as_names" value="false"/>
+                            <list key="annotations">
+                              <parameter key="0" value="Name"/>
+                            </list>
+                            <parameter key="time_zone" value="SYSTEM"/>
+                            <parameter key="locale" value="English (United States)"/>
+                            <parameter key="encoding" value="windows-1252"/>
+                            <list key="data_set_meta_data_information">
+                              <parameter key="0" value="label.true.nominal.attribute"/>
+                              <parameter key="1" value="id.true.integer.attribute"/>
+                              <parameter key="2" value="prediction.true.nominal.attribute"/>
+                            </list>
+                            <parameter key="read_not_matching_values_as_missings" value="true"/>
+                            <parameter key="datamanagement" value="double_array"/>
+                          </operator>
+                          <connect from_op="Read CSV (4)" from_port="output" to_port="out 1"/>
+                          <portSpacing port="source_in 1" spacing="0"/>
+                          <portSpacing port="sink_out 1" spacing="0"/>
+                          <portSpacing port="sink_out 2" spacing="0"/>
+                        </process>
+                      </operator>
+                      <operator activated="false" breakpoints="after" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (3)" width="90" x="380" y="300">
+                        <parameter key="name" value="id"/>
+                        <parameter key="target_role" value="id"/>
+                        <list key="set_additional_roles">
+                          <parameter key="prediction" value="prediction"/>
+                          <parameter key="label" value="label"/>
+                        </list>
+                      </operator>
+                      <connect from_port="in 1" to_op="Generate Attributes" to_port="example set input"/>
+                      <connect from_op="Generate Attributes" from_port="example set output" to_op="Select Attributes (2)" to_port="example set input"/>
+                      <connect from_op="Select Attributes (2)" from_port="example set output" to_op="Rename (2)" to_port="example set input"/>
+                      <connect from_op="Rename (2)" from_port="example set output" to_op="Set Role (2)" to_port="example set input"/>
+                      <connect from_op="Set Role (2)" from_port="example set output" to_port="out 1"/>
+                      <portSpacing port="source_in 1" spacing="0"/>
+                      <portSpacing port="source_in 2" spacing="0"/>
+                      <portSpacing port="sink_out 1" spacing="0"/>
+                      <portSpacing port="sink_out 2" spacing="0"/>
+                    </process>
+                  </operator>
+                  <operator activated="true" class="tutorial:Adjust Mapping Bug" compatibility="5.0.000" expanded="true" height="60" name="Adjust Mapping Bug" width="90" x="155" y="300">
+                    <parameter key="add_3label" value="false"/>
+                  </operator>
+                  <operator activated="false" class="performance_binominal_classification" compatibility="5.2.008" expanded="true" height="76" name="Performance" width="90" x="45" y="480">
+                    <parameter key="main_criterion" value="f_measure"/>
+                    <parameter key="accuracy" value="false"/>
+                    <parameter key="classification_error" value="false"/>
+                    <parameter key="kappa" value="false"/>
+                    <parameter key="AUC (optimistic)" value="false"/>
+                    <parameter key="AUC" value="false"/>
+                    <parameter key="AUC (pessimistic)" value="false"/>
+                    <parameter key="precision" value="false"/>
+                    <parameter key="recall" value="false"/>
+                    <parameter key="lift" value="false"/>
+                    <parameter key="fallout" value="false"/>
+                    <parameter key="f_measure" value="true"/>
+                    <parameter key="false_positive" value="false"/>
+                    <parameter key="false_negative" value="false"/>
+                    <parameter key="true_positive" value="false"/>
+                    <parameter key="true_negative" value="false"/>
+                    <parameter key="sensitivity" value="false"/>
+                    <parameter key="specificity" value="false"/>
+                    <parameter key="youden" value="false"/>
+                    <parameter key="positive_predictive_value" value="false"/>
+                    <parameter key="negative_predictive_value" value="false"/>
+                    <parameter key="psep" value="false"/>
+                    <parameter key="skip_undefined_labels" value="true"/>
+                    <parameter key="use_example_weights" value="false"/>
+                  </operator>
+                  <operator activated="true" class="tutorial:Performance Fixed (Binomial Classification)" compatibility="5.0.000" expanded="true" height="76" name="Performance Fixed (Binomial Classification)" width="90" x="51" y="385">
+                    <parameter key="main_criterion" value="f_measure"/>
+                    <parameter key="accuracy" value="false"/>
+                    <parameter key="classification_error" value="false"/>
+                    <parameter key="kappa" value="false"/>
+                    <parameter key="AUC (optimistic)" value="false"/>
+                    <parameter key="AUC" value="false"/>
+                    <parameter key="AUC (pessimistic)" value="false"/>
+                    <parameter key="precision" value="false"/>
+                    <parameter key="recall" value="false"/>
+                    <parameter key="lift" value="false"/>
+                    <parameter key="fallout" value="false"/>
+                    <parameter key="f_measure" value="true"/>
+                    <parameter key="false_positive" value="false"/>
+                    <parameter key="false_negative" value="false"/>
+                    <parameter key="true_positive" value="false"/>
+                    <parameter key="true_negative" value="false"/>
+                    <parameter key="sensitivity" value="false"/>
+                    <parameter key="specificity" value="false"/>
+                    <parameter key="youden" value="false"/>
+                    <parameter key="positive_predictive_value" value="false"/>
+                    <parameter key="negative_predictive_value" value="false"/>
+                    <parameter key="psep" value="false"/>
+                    <parameter key="skip_undefined_labels" value="true"/>
+                    <parameter key="use_example_weights" value="true"/>
+                  </operator>
+                  <operator activated="true" class="tutorial:Fix Performance Vector" compatibility="5.0.000" expanded="true" height="60" name="Fix Performance Vector" width="90" x="246" y="390"/>
+                  <operator activated="true" class="log" compatibility="5.2.008" expanded="true" height="76" name="Log" width="90" x="380" y="390">
+                    <parameter key="filename" value="%{outputdir_}/%{symbol_}_%{delta_}_ parm_agg_cv.log"/>
+                    <list key="log">
+                      <parameter key="rule" value="operator.Aggregate Decision By TradeDatetime.parameter.parameters_to_string"/>
+                      <parameter key="f-measure" value="operator.Performance Fixed (Binomial Classification).value.f_measure"/>
+                    </list>
+                    <parameter key="sorting_type" value="none"/>
+                    <parameter key="sorting_k" value="100"/>
+                    <parameter key="persistent" value="true"/>
+                  </operator>
+                  <connect from_port="model" to_op="Apply Model" to_port="model"/>
+                  <connect from_port="test set" to_op="Apply Model" to_port="unlabelled data"/>
+                  <connect from_op="Apply Model" from_port="labelled data" to_op="Read Test Set" to_port="in 1"/>
+                  <connect from_op="Read Test Set" from_port="out 1" to_op="Aggregate Decision By TradeDatetime" to_port="label prediction"/>
+                  <connect from_op="Aggregate Decision By TradeDatetime" from_port="label prediction adjusted" to_op="Adjust to Performance" to_port="in 1"/>
+                  <connect from_op="Adjust to Performance" from_port="out 1" to_op="Adjust Mapping Bug" to_port="label prediction"/>
+                  <connect from_op="Adjust Mapping Bug" from_port="label prediction adjusted" to_op="Performance Fixed (Binomial Classification)" to_port="labelled data"/>
+                  <connect from_op="Performance Fixed (Binomial Classification)" from_port="performance" to_op="Fix Performance Vector" to_port="performance"/>
+                  <connect from_op="Fix Performance Vector" from_port="performance" to_op="Log" to_port="through 1"/>
+                  <connect from_op="Log" from_port="through 1" to_port="averagable 1"/>
+                  <portSpacing port="source_model" spacing="0"/>
+                  <portSpacing port="source_test set" spacing="0"/>
+                  <portSpacing port="source_through 1" spacing="0"/>
+                  <portSpacing port="sink_averagable 1" spacing="0"/>
+                  <portSpacing port="sink_averagable 2" spacing="0"/>
+                </process>
+              </operator>
+              <connect from_port="input 1" to_op="Validation" to_port="training"/>
+              <connect from_op="Validation" from_port="averagable 1" to_port="performance"/>
+              <portSpacing port="source_input 1" spacing="0"/>
+              <portSpacing port="source_input 2" spacing="0"/>
+              <portSpacing port="sink_performance" spacing="0"/>
+              <portSpacing port="sink_result 1" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="write_parameters" compatibility="5.2.008" expanded="true" height="60" name="Write Parameters" width="90" x="447" y="165">
+            <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_cv.parm"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <connect from_port="example set" to_op="Print to Console" to_port="through 1"/>
+          <connect from_op="Print to Console" from_port="through 1" to_op="Set Parameters" to_port="in 1"/>
+          <connect from_op="Set Parameters" from_port="out 1" to_op="Read Train" to_port="in 1"/>
+          <connect from_op="Read Train" from_port="out 1" to_op="Set Macro" to_port="through 1"/>
+          <connect from_op="Set Macro" from_port="through 1" to_op="Optimize Parameters (Evolutionary)" to_port="input 1"/>
+          <connect from_op="Optimize Parameters (Evolutionary)" from_port="parameter" to_op="Write Parameters" to_port="input"/>
+          <connect from_op="Write Parameters" from_port="through" to_port="out 1"/>
+          <portSpacing port="source_example set" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Set Macros w1" to_port="through 1"/>
+      <connect from_op="Set Macros w1" from_port="through 1" to_op="Read Symbols" to_port="in 1"/>
+      <connect from_op="Read Symbols" from_port="out 1" to_op="Print to Console (2)" to_port="through 1"/>
+      <connect from_op="Print to Console (2)" from_port="through 1" to_op="Loop Values" to_port="example set"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+    </process>
+  </operator>
+</process>

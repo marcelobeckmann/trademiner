@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="555" width="797">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV" width="90" x="45" y="345">
+        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character_for_quotes" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value="."/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="45" y="165">
+        <parameter key="macro_attribute" value="macro"/>
+        <parameter key="value_attribute" value="value"/>
+      </operator>
+      <operator activated="false" class="execute_sql" compatibility="5.2.008" expanded="true" height="60" name="Execute SQL" width="90" x="112" y="75">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="query" value="delete from alignment where ticket like '%%{ticket_}'"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+      </operator>
+      <operator activated="true" class="tutorial:News Aligner" compatibility="5.0.000" expanded="true" height="76" name="News Aligner" width="90" x="246" y="75">
+        <parameter key="aligner_window" value="%{window_size_}"/>
+        <parameter key="experiment_symbol" value=""/>
+        <parameter key="experiment_exchange" value="NYSE"/>
+        <parameter key="mktdata_table" value="mktdata"/>
+        <parameter key="news_index_filter" value=""/>
+        <parameter key="ticket" value="%{ticket_}"/>
+        <parameter key="percent" value="0.75"/>
+        <parameter key="aligner_impl" value="RestrictiveAlignment"/>
+        <parameter key="mktdata_time_shift" value=""/>
+      </operator>
+      <connect from_op="Read CSV" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="News Aligner" to_port="through 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+    </process>
+  </operator>
+</process>

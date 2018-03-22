@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<parameterset version="5.2">
+    <parameter operator="LIBSVM" key="gamma" value="3.0"/>
+    <parameter operator="LIBSVM" key="C" value="1550.0"/>
+</parameterset>

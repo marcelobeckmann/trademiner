@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Root">
+    <description>GENERATE TRAIN AND TEST SETS IN CSV FORMAT</description>
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="434" width="547">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV" width="90" x="45" y="255">
+        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character_for_quotes" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value="."/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="45" y="120">
+        <parameter key="macro_attribute" value="macro"/>
+        <parameter key="value_attribute" value="value"/>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Symbols" width="90" x="179" y="120">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="396" width="388">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (3)" width="90" x="45" y="75">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
+            <parameter key="username" value="root"/>
+            <parameter key="password" value="bW7eHSg9AJTDcW93ti6N/0QzS7zYpRHR8QatcCEMWtb3cfpPuaHWoqG5fG/erCM5"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT s.symbol, dummy_id FROM symbol s WHERE s.status=1 &#10;AND s.exchange='NYSE' &#10; and portfolio like '%%{portfolio_}%' &#10;ORDER BY s.symbol&#10; "/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <connect from_op="Read Database (3)" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="loop_values" compatibility="5.2.008" expanded="true" height="76" name="Loop Values (2)" width="90" x="313" y="255">
+        <parameter key="attribute" value="symbol"/>
+        <parameter key="iteration_macro" value="symbol_"/>
+        <parameter key="parallelize_iteration" value="false"/>
+        <process expanded="true" height="676" width="902">
+          <operator activated="true" class="print_to_console" compatibility="5.2.008" expanded="true" height="76" name="Print to Console (2)" width="90" x="45" y="30">
+            <parameter key="log_value" value="#######  symbol %{symbol_} -&gt; FG_text_vectorization_att_reduction_test"/>
+          </operator>
+          <operator activated="false" class="retrieve" compatibility="5.2.008" expanded="true" height="60" name="Retrieve" width="90" x="45" y="300">
+            <parameter key="repository_entry" value="under_test/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_WORDLIST"/>
+          </operator>
+          <operator activated="false" class="read_weights" compatibility="5.2.008" expanded="true" height="60" name="Read Weights" width="90" x="246" y="300">
+            <parameter key="attribute_weights_file" value="%{outputdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_WEIGHTS.xml"/>
+          </operator>
+          <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Dummy Id" width="90" x="45" y="165">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="404" width="744">
+              <operator activated="false" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (4)" width="90" x="45" y="30">
+                <parameter key="define_connection" value="predefined"/>
+                <parameter key="connection" value="trademiner"/>
+                <parameter key="database_system" value="MySQL"/>
+                <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
+                <parameter key="username" value="root"/>
+                <parameter key="password" value="bW7eHSg9AJTDcW93ti6N/0QzS7zYpRHR8QatcCEMWtb3cfpPuaHWoqG5fG/erCM5"/>
+                <parameter key="define_query" value="query"/>
+                <parameter key="query" value="SELECT s.dummy_id FROM symbol s WHERE s.symbol= '%{symbol_}'&#10;&#10;"/>
+                <parameter key="use_default_schema" value="true"/>
+                <parameter key="prepare_statement" value="false"/>
+                <enumeration key="parameters"/>
+                <parameter key="datamanagement" value="double_array"/>
+              </operator>
+              <operator activated="false" class="extract_macro" compatibility="5.2.008" expanded="true" height="60" name="Extract Macro" width="90" x="403" y="30">
+                <parameter key="macro" value="dummy_id_"/>
+                <parameter key="macro_type" value="data_value"/>
+                <parameter key="statistics" value="average"/>
+                <parameter key="attribute_name" value="dummy_id"/>
+                <parameter key="example_index" value="1"/>
+              </operator>
+              <connect from_op="Read Database (4)" from_port="output" to_op="Extract Macro" to_port="example set"/>
+              <connect from_op="Extract Macro" from_port="example set" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Content" width="90" x="179" y="30">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="404" width="179">
+              <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (2)" width="90" x="59" y="57">
+                <parameter key="define_connection" value="predefined"/>
+                <parameter key="connection" value="trademiner"/>
+                <parameter key="database_system" value="MySQL"/>
+                <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
+                <parameter key="username" value="root"/>
+                <parameter key="password" value="bW7eHSg9AJTDcW93ti6N/0QzS7zYpRHR8QatcCEMWtb3cfpPuaHWoqG5fG/erCM5"/>
+                <parameter key="define_query" value="query"/>
+                <parameter key="query" value="select * from (SELECT a.id AS id&#10;, convert(clean_content,char) as content_ ,&#10;%{label_definition_}&#10;FROM  alignment a, rss n&#10;WHERE a.status=1 AND a.news_id=n.id AND a.symbol='%{symbol_}'  AND a.ticket LIKE '%%{ticket_}' and clean_content is not null &#10;and next_trade_date &gt;= STR_TO_DATE('%{next_trade_date_}','%Y/%m/%d')&#10;and next_trade_date &lt;= str_to_date('%{end_test_date_}','%Y/%m/%d')&#10;order by n.published&#10;) m&#10;/*&#10;union &#10;select * from &#10;(&#10;SELECT a.id AS id&#10;, CONVERT(clean_content,CHAR) AS content_ ,&#10;label FROM  alignment a, rss n&#10;WHERE a.id = %{dummy_id_} AND a.news_id=n.id AND&#10;(&#10;SELECT COUNT(*) FROM  alignment a, rss n&#10;WHERE a.status=1 AND a.news_id=n.id AND a.symbol='%{symbol_}'  AND a.ticket LIKE '%%{ticket_}' AND clean_content IS NOT NULL &#10;and next_trade_date &gt;= STR_TO_DATE('%{next_trade_date_}','%Y/%m/%d')&#10;AND next_trade_date &lt;= STR_TO_DATE('%{end_test_date_}','%Y/%m/%d')&#10;AND label=2 )=0 limit 1&#10;&#10;) p&#10;*/"/>
+                <parameter key="use_default_schema" value="true"/>
+                <parameter key="prepare_statement" value="false"/>
+                <enumeration key="parameters"/>
+                <parameter key="datamanagement" value="float_array"/>
+              </operator>
+              <connect from_op="Read Database (2)" from_port="output" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role" width="90" x="313" y="30">
+            <parameter key="name" value="id"/>
+            <parameter key="target_role" value="id"/>
+            <list key="set_additional_roles"/>
+          </operator>
+          <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (3)" width="90" x="447" y="30">
+            <parameter key="name" value="label"/>
+            <parameter key="target_role" value="label"/>
+            <list key="set_additional_roles"/>
+          </operator>
+          <operator activated="false" class="text:process_document_from_data" compatibility="5.2.003" expanded="true" height="76" name="Process Documents from Data" width="90" x="246" y="165">
+            <parameter key="create_word_vector" value="true"/>
+            <parameter key="vector_creation" value="TF-IDF"/>
+            <parameter key="add_meta_information" value="true"/>
+            <parameter key="keep_text" value="false"/>
+            <parameter key="prune_method" value="percentual"/>
+            <parameter key="prunde_below_percent" value="2.0"/>
+            <parameter key="prune_above_percent" value="95.0"/>
+            <parameter key="prune_below_rank" value="0.05"/>
+            <parameter key="prune_above_rank" value="0.05"/>
+            <parameter key="datamanagement" value="float_sparse_array"/>
+            <parameter key="select_attributes_and_weights" value="false"/>
+            <list key="specify_weights"/>
+            <parameter key="parallelize_vector_creation" value="false"/>
+            <process expanded="true" height="460" width="550">
+              <operator activated="false" class="web:extract_html_text_content" compatibility="5.3.001" expanded="true" height="60" name="Extract Content" width="90" x="45" y="30">
+                <parameter key="extract_content" value="true"/>
+                <parameter key="minimum_text_block_length" value="5"/>
+                <parameter key="override_content_type_information" value="true"/>
+                <parameter key="neglegt_span_tags" value="true"/>
+                <parameter key="neglect_p_tags" value="true"/>
+                <parameter key="neglect_b_tags" value="true"/>
+                <parameter key="neglect_i_tags" value="true"/>
+                <parameter key="neglect_br_tags" value="true"/>
+                <parameter key="ignore_non_html_tags" value="true"/>
+              </operator>
+              <operator activated="false" class="text:tokenize" compatibility="5.2.003" expanded="true" height="60" name="Tokenize" width="90" x="45" y="120">
+                <parameter key="mode" value="non letters"/>
+                <parameter key="characters" value=".:"/>
+                <parameter key="language" value="English"/>
+                <parameter key="max_token_length" value="3"/>
+              </operator>
+              <operator activated="false" class="text:transform_cases" compatibility="5.2.003" expanded="true" height="60" name="Transform Cases" width="90" x="45" y="210">
+                <parameter key="transform_to" value="lower case"/>
+              </operator>
+              <operator activated="false" class="text:filter_stopwords_english" compatibility="5.2.003" expanded="true" height="60" name="Filter Stopwords (2)" width="90" x="45" y="300"/>
+              <operator activated="false" class="text:generate_n_grams_terms" compatibility="5.2.003" expanded="true" height="60" name="Generate n-Grams (2)" width="90" x="313" y="165">
+                <parameter key="max_length" value="3"/>
+              </operator>
+              <operator activated="false" class="text:filter_by_length" compatibility="5.2.003" expanded="true" height="60" name="Filter Tokens (by Length)" width="90" x="298" y="75">
+                <parameter key="min_chars" value="2"/>
+                <parameter key="max_chars" value="999"/>
+              </operator>
+              <connect from_port="document" to_op="Extract Content" to_port="document"/>
+              <connect from_op="Extract Content" from_port="document" to_op="Tokenize" to_port="document"/>
+              <connect from_op="Tokenize" from_port="document" to_op="Transform Cases" to_port="document"/>
+              <connect from_op="Transform Cases" from_port="document" to_op="Filter Stopwords (2)" to_port="document"/>
+              <connect from_op="Filter Stopwords (2)" from_port="document" to_op="Generate n-Grams (2)" to_port="document"/>
+              <connect from_op="Generate n-Grams (2)" from_port="document" to_op="Filter Tokens (by Length)" to_port="document"/>
+              <connect from_op="Filter Tokens (by Length)" from_port="document" to_port="document 1"/>
+              <portSpacing port="source_document" spacing="0"/>
+              <portSpacing port="sink_document 1" spacing="0"/>
+              <portSpacing port="sink_document 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="false" class="select_by_weights" compatibility="5.2.008" expanded="true" height="94" name="AttributeWeightSelection (3)" width="90" x="401" y="166">
+            <parameter key="weight_relation" value="greater equals"/>
+            <parameter key="weight" value="%{att_weight_}"/>
+            <parameter key="k" value="10"/>
+            <parameter key="p" value="0.5"/>
+            <parameter key="deselect_unknown" value="true"/>
+            <parameter key="use_absolute_weights" value="false"/>
+          </operator>
+          <operator activated="true" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV (6)" width="90" x="648" y="30">
+            <parameter key="csv_file" value="%{outputdir_}/%{outdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TEST_NOKNN.CSV"/>
+            <parameter key="column_separator" value=";"/>
+            <parameter key="write_attribute_names" value="true"/>
+            <parameter key="quote_nominal_values" value="true"/>
+            <parameter key="format_date_attributes" value="true"/>
+            <parameter key="append_to_file" value="false"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Apply KNN Old" width="90" x="648" y="390">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="540" width="1314">
+              <operator activated="false" class="multiply" compatibility="5.2.008" expanded="true" height="94" name="Multiply (3)" width="90" x="112" y="75"/>
+              <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Train (2)" width="90" x="112" y="300">
+                <parameter key="parallelize_nested_chain" value="false"/>
+                <process expanded="true" height="540" width="1314">
+                  <operator activated="false" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Train (2)" width="90" x="45" y="30">
+                    <parameter key="csv_file" value="%{outputdir_}/%{outdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TRAIN.CSV"/>
+                    <parameter key="column_separators" value=";"/>
+                    <parameter key="trim_lines" value="false"/>
+                    <parameter key="use_quotes" value="true"/>
+                    <parameter key="quotes_character" value="&quot;"/>
+                    <parameter key="escape_character_for_quotes" value="\"/>
+                    <parameter key="skip_comments" value="false"/>
+                    <parameter key="comment_characters" value="#"/>
+                    <parameter key="parse_numbers" value="true"/>
+                    <parameter key="decimal_character" value="."/>
+                    <parameter key="grouped_digits" value="false"/>
+                    <parameter key="grouping_character" value=","/>
+                    <parameter key="date_format" value=""/>
+                    <parameter key="first_row_as_names" value="true"/>
+                    <list key="annotations"/>
+                    <parameter key="time_zone" value="SYSTEM"/>
+                    <parameter key="locale" value="English (United States)"/>
+                    <parameter key="encoding" value="SYSTEM"/>
+                    <list key="data_set_meta_data_information"/>
+                    <parameter key="read_not_matching_values_as_missings" value="true"/>
+                    <parameter key="datamanagement" value="double_array"/>
+                  </operator>
+                  <operator activated="false" class="real_to_integer" compatibility="5.2.008" expanded="true" height="76" name="Real to Integer (2)" width="90" x="180" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="id"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="real"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series_end"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                    <parameter key="round_values" value="false"/>
+                  </operator>
+                  <operator activated="false" class="numerical_to_polynominal" compatibility="5.2.008" expanded="true" height="76" name="Numerical to Polynominal (2)" width="90" x="315" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="label"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="numeric"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                  </operator>
+                  <operator activated="false" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (4)" width="90" x="447" y="30">
+                    <parameter key="name" value="label"/>
+                    <parameter key="target_role" value="label"/>
+                    <list key="set_additional_roles">
+                      <parameter key="id" value="id"/>
+                    </list>
+                  </operator>
+                  <connect from_op="Read CSV Train (2)" from_port="output" to_op="Real to Integer (2)" to_port="example set input"/>
+                  <connect from_op="Real to Integer (2)" from_port="example set output" to_op="Numerical to Polynominal (2)" to_port="example set input"/>
+                  <connect from_op="Numerical to Polynominal (2)" from_port="example set output" to_op="Set Role (4)" to_port="example set input"/>
+                  <connect from_op="Set Role (4)" from_port="example set output" to_port="out 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                </process>
+              </operator>
+              <operator activated="false" class="union" compatibility="5.2.008" expanded="true" height="76" name="Union" width="90" x="313" y="120"/>
+              <operator activated="false" class="tutorial:KNN Undersampling" compatibility="5.0.000" expanded="true" height="60" name="KNN Undersampling (2)" width="90" x="514" y="255">
+                <parameter key="majority_label" value="0"/>
+                <parameter key="threshold" value="%{t_}"/>
+                <parameter key="k" value="%{k_}"/>
+                <parameter key="measure_types" value="NumericalMeasures"/>
+                <parameter key="mixed_measure" value="MixedEuclideanDistance"/>
+                <parameter key="nominal_measure" value="NominalDistance"/>
+                <parameter key="numerical_measure" value="CosineSimilarity"/>
+                <parameter key="divergence" value="GeneralizedIDivergence"/>
+                <parameter key="kernel_type" value="radial"/>
+                <parameter key="kernel_gamma" value="1.0"/>
+                <parameter key="kernel_sigma1" value="1.0"/>
+                <parameter key="kernel_sigma2" value="0.0"/>
+                <parameter key="kernel_sigma3" value="2.0"/>
+                <parameter key="kernel_degree" value="3.0"/>
+                <parameter key="kernel_shift" value="1.0"/>
+                <parameter key="kernel_a" value="1.0"/>
+                <parameter key="kernel_b" value="0.0"/>
+                <parameter key="log_verbosity" value="0"/>
+              </operator>
+              <operator activated="false" class="intersect" compatibility="5.2.008" expanded="true" height="76" name="Intersect" width="90" x="782" y="75"/>
+              <connect from_port="in 1" to_op="Multiply (3)" to_port="input"/>
+              <connect from_op="Multiply (3)" from_port="output 1" to_op="Intersect" to_port="example set input"/>
+              <connect from_op="Multiply (3)" from_port="output 2" to_op="Union" to_port="example set 1"/>
+              <connect from_op="Read Train (2)" from_port="out 1" to_op="Union" to_port="example set 2"/>
+              <connect from_op="Union" from_port="union" to_op="KNN Undersampling (2)" to_port="example set"/>
+              <connect from_op="KNN Undersampling (2)" from_port="example set" to_op="Intersect" to_port="second"/>
+              <connect from_op="Intersect" from_port="example set output" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Apply KNN DT" width="90" x="648" y="120">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="701" width="1016">
+              <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Train" width="90" x="45" y="210">
+                <parameter key="parallelize_nested_chain" value="false"/>
+                <process expanded="true" height="395" width="500">
+                  <operator activated="false" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Train" width="90" x="45" y="30">
+                    <parameter key="csv_file" value="%{outputdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TRAIN_FULL.CSV"/>
+                    <parameter key="column_separators" value=";"/>
+                    <parameter key="trim_lines" value="false"/>
+                    <parameter key="use_quotes" value="true"/>
+                    <parameter key="quotes_character" value="&quot;"/>
+                    <parameter key="escape_character_for_quotes" value="\"/>
+                    <parameter key="skip_comments" value="false"/>
+                    <parameter key="comment_characters" value="#"/>
+                    <parameter key="parse_numbers" value="true"/>
+                    <parameter key="decimal_character" value="."/>
+                    <parameter key="grouped_digits" value="false"/>
+                    <parameter key="grouping_character" value=","/>
+                    <parameter key="date_format" value=""/>
+                    <parameter key="first_row_as_names" value="true"/>
+                    <list key="annotations"/>
+                    <parameter key="time_zone" value="SYSTEM"/>
+                    <parameter key="locale" value="English (United States)"/>
+                    <parameter key="encoding" value="SYSTEM"/>
+                    <list key="data_set_meta_data_information"/>
+                    <parameter key="read_not_matching_values_as_missings" value="true"/>
+                    <parameter key="datamanagement" value="double_array"/>
+                  </operator>
+                  <operator activated="false" class="real_to_integer" compatibility="5.2.008" expanded="true" height="76" name="Real to Integer" width="90" x="246" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="id"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="real"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series_end"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                    <parameter key="round_values" value="false"/>
+                  </operator>
+                  <operator activated="false" class="numerical_to_polynominal" compatibility="5.2.008" expanded="true" height="76" name="Numerical to Polynominal" width="90" x="246" y="165">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="label"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="numeric"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                  </operator>
+                  <operator activated="false" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (2)" width="90" x="380" y="30">
+                    <parameter key="name" value="label"/>
+                    <parameter key="target_role" value="label"/>
+                    <list key="set_additional_roles">
+                      <parameter key="id" value="id"/>
+                    </list>
+                  </operator>
+                  <connect from_op="Read CSV Train" from_port="output" to_op="Real to Integer" to_port="example set input"/>
+                  <connect from_op="Real to Integer" from_port="example set output" to_op="Numerical to Polynominal" to_port="example set input"/>
+                  <connect from_op="Numerical to Polynominal" from_port="example set output" to_op="Set Role (2)" to_port="example set input"/>
+                  <connect from_op="Set Role (2)" from_port="example set output" to_port="out 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                </process>
+              </operator>
+              <operator activated="false" class="multiply" compatibility="5.2.008" expanded="true" height="94" name="Multiply" width="90" x="45" y="75"/>
+              <operator activated="false" class="dummy" compatibility="5.2.008" expanded="true" height="76" name="KNN Undersampling Classifier" width="90" x="179" y="165"/>
+              <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Convert Attributes" width="90" x="313" y="255">
+                <parameter key="parallelize_nested_chain" value="false"/>
+                <process expanded="true" height="210" width="701">
+                  <operator activated="false" class="real_to_integer" compatibility="5.2.008" expanded="true" height="76" name="Real to Integer (4)" width="90" x="179" y="75">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="id"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="real"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series_end"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                    <parameter key="round_values" value="false"/>
+                  </operator>
+                  <operator activated="false" class="numerical_to_polynominal" compatibility="5.2.008" expanded="true" height="76" name="Numerical to Polynominal (6)" width="90" x="313" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="label"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="numeric"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                  </operator>
+                  <operator activated="false" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (9)" width="90" x="447" y="30">
+                    <parameter key="name" value="label"/>
+                    <parameter key="target_role" value="label"/>
+                    <list key="set_additional_roles">
+                      <parameter key="id" value="id"/>
+                    </list>
+                  </operator>
+                  <connect from_port="in 1" to_op="Real to Integer (4)" to_port="example set input"/>
+                  <connect from_op="Real to Integer (4)" from_port="example set output" to_op="Numerical to Polynominal (6)" to_port="example set input"/>
+                  <connect from_op="Numerical to Polynominal (6)" from_port="example set output" to_op="Set Role (9)" to_port="example set input"/>
+                  <connect from_op="Set Role (9)" from_port="example set output" to_port="out 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="source_in 2" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                </process>
+              </operator>
+              <operator activated="false" class="decision_tree" compatibility="5.2.008" expanded="true" height="76" name="Decision Tree" width="90" x="514" y="255">
+                <parameter key="criterion" value="gain_ratio"/>
+                <parameter key="minimal_size_for_split" value="4"/>
+                <parameter key="minimal_leaf_size" value="2"/>
+                <parameter key="minimal_gain" value="0.1"/>
+                <parameter key="maximal_depth" value="20"/>
+                <parameter key="confidence" value="0.25"/>
+                <parameter key="number_of_prepruning_alternatives" value="3"/>
+                <parameter key="no_pre_pruning" value="false"/>
+                <parameter key="no_pruning" value="false"/>
+              </operator>
+              <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Convert Attributes (2)" width="90" x="313" y="165">
+                <parameter key="parallelize_nested_chain" value="false"/>
+                <process expanded="true" height="516" width="1272">
+                  <operator activated="false" class="real_to_integer" compatibility="5.2.008" expanded="true" height="76" name="Real to Integer (5)" width="90" x="45" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="id"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="real"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series_end"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                    <parameter key="round_values" value="false"/>
+                  </operator>
+                  <operator activated="false" class="numerical_to_polynominal" compatibility="5.2.008" expanded="true" height="76" name="Numerical to Polynominal (4)" width="90" x="180" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="label"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="numeric"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                  </operator>
+                  <operator activated="false" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (7)" width="90" x="735" y="30">
+                    <parameter key="name" value="label"/>
+                    <parameter key="target_role" value="label"/>
+                    <list key="set_additional_roles">
+                      <parameter key="id" value="id"/>
+                    </list>
+                  </operator>
+                  <connect from_port="in 1" to_op="Real to Integer (5)" to_port="example set input"/>
+                  <connect from_op="Real to Integer (5)" from_port="example set output" to_op="Numerical to Polynominal (4)" to_port="example set input"/>
+                  <connect from_op="Numerical to Polynominal (4)" from_port="example set output" to_op="Set Role (7)" to_port="example set input"/>
+                  <connect from_op="Set Role (7)" from_port="example set output" to_port="out 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="source_in 2" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                </process>
+              </operator>
+              <operator activated="false" class="apply_model" compatibility="5.2.008" expanded="true" height="76" name="Apply Model" width="90" x="581" y="75">
+                <list key="application_parameters"/>
+                <parameter key="create_view" value="false"/>
+              </operator>
+              <operator activated="false" class="multiply" compatibility="5.2.008" expanded="true" height="76" name="Multiply (2)" width="90" x="648" y="255"/>
+              <operator activated="false" breakpoints="after" class="performance_binominal_classification" compatibility="5.2.008" expanded="true" height="76" name="Performance" width="90" x="849" y="210">
+                <parameter key="main_criterion" value="f_measure"/>
+                <parameter key="accuracy" value="false"/>
+                <parameter key="classification_error" value="false"/>
+                <parameter key="kappa" value="false"/>
+                <parameter key="AUC (optimistic)" value="false"/>
+                <parameter key="AUC" value="true"/>
+                <parameter key="AUC (pessimistic)" value="false"/>
+                <parameter key="precision" value="false"/>
+                <parameter key="recall" value="false"/>
+                <parameter key="lift" value="false"/>
+                <parameter key="fallout" value="false"/>
+                <parameter key="f_measure" value="true"/>
+                <parameter key="false_positive" value="false"/>
+                <parameter key="false_negative" value="false"/>
+                <parameter key="true_positive" value="false"/>
+                <parameter key="true_negative" value="false"/>
+                <parameter key="sensitivity" value="false"/>
+                <parameter key="specificity" value="false"/>
+                <parameter key="youden" value="false"/>
+                <parameter key="positive_predictive_value" value="false"/>
+                <parameter key="negative_predictive_value" value="false"/>
+                <parameter key="psep" value="false"/>
+                <parameter key="skip_undefined_labels" value="true"/>
+                <parameter key="use_example_weights" value="true"/>
+              </operator>
+              <operator activated="false" class="dummy" compatibility="5.2.008" expanded="true" height="76" name="KNN Undersampling Remove Prediction" width="90" x="849" y="30"/>
+              <connect from_port="in 1" to_op="Multiply" to_port="input"/>
+              <connect from_op="Convert Attributes" from_port="out 1" to_op="Decision Tree" to_port="training set"/>
+              <connect from_op="Decision Tree" from_port="model" to_op="Apply Model" to_port="model"/>
+              <connect from_op="Convert Attributes (2)" from_port="out 1" to_op="Apply Model" to_port="unlabelled data"/>
+              <connect from_op="Apply Model" from_port="labelled data" to_op="Multiply (2)" to_port="input"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="60" name="Apply KNN nolabel" width="90" x="514" y="435">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="370" width="820">
+              <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Train (3)" width="90" x="45" y="255">
+                <parameter key="parallelize_nested_chain" value="false"/>
+                <process expanded="true" height="365" width="696">
+                  <operator activated="false" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Train (3)" width="90" x="45" y="30">
+                    <parameter key="csv_file" value="%{outputdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TRAIN_FULL.CSV"/>
+                    <parameter key="column_separators" value=";"/>
+                    <parameter key="trim_lines" value="false"/>
+                    <parameter key="use_quotes" value="true"/>
+                    <parameter key="quotes_character" value="&quot;"/>
+                    <parameter key="escape_character_for_quotes" value="\"/>
+                    <parameter key="skip_comments" value="false"/>
+                    <parameter key="comment_characters" value="#"/>
+                    <parameter key="parse_numbers" value="true"/>
+                    <parameter key="decimal_character" value="."/>
+                    <parameter key="grouped_digits" value="false"/>
+                    <parameter key="grouping_character" value=","/>
+                    <parameter key="date_format" value=""/>
+                    <parameter key="first_row_as_names" value="true"/>
+                    <list key="annotations"/>
+                    <parameter key="time_zone" value="SYSTEM"/>
+                    <parameter key="locale" value="English (United States)"/>
+                    <parameter key="encoding" value="SYSTEM"/>
+                    <list key="data_set_meta_data_information"/>
+                    <parameter key="read_not_matching_values_as_missings" value="true"/>
+                    <parameter key="datamanagement" value="double_array"/>
+                  </operator>
+                  <operator activated="false" class="real_to_integer" compatibility="5.2.008" expanded="true" height="76" name="Real to Integer (3)" width="90" x="180" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="id"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="real"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series_end"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                    <parameter key="round_values" value="false"/>
+                  </operator>
+                  <operator activated="false" class="numerical_to_polynominal" compatibility="5.2.008" expanded="true" height="76" name="Numerical to Polynominal (3)" width="90" x="315" y="30">
+                    <parameter key="attribute_filter_type" value="single"/>
+                    <parameter key="attribute" value="label"/>
+                    <parameter key="attributes" value=""/>
+                    <parameter key="use_except_expression" value="false"/>
+                    <parameter key="value_type" value="numeric"/>
+                    <parameter key="use_value_type_exception" value="false"/>
+                    <parameter key="except_value_type" value="real"/>
+                    <parameter key="block_type" value="value_series"/>
+                    <parameter key="use_block_type_exception" value="false"/>
+                    <parameter key="except_block_type" value="value_series_end"/>
+                    <parameter key="invert_selection" value="false"/>
+                    <parameter key="include_special_attributes" value="false"/>
+                  </operator>
+                  <operator activated="false" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (5)" width="90" x="576" y="30">
+                    <parameter key="name" value="label"/>
+                    <parameter key="target_role" value="label"/>
+                    <list key="set_additional_roles">
+                      <parameter key="id" value="id"/>
+                    </list>
+                  </operator>
+                  <connect from_op="Read CSV Train (3)" from_port="output" to_op="Real to Integer (3)" to_port="example set input"/>
+                  <connect from_op="Real to Integer (3)" from_port="example set output" to_op="Numerical to Polynominal (3)" to_port="example set input"/>
+                  <connect from_op="Numerical to Polynominal (3)" from_port="example set output" to_op="Set Role (5)" to_port="example set input"/>
+                  <connect from_op="Set Role (5)" from_port="example set output" to_port="out 1"/>
+                  <portSpacing port="source_in 1" spacing="0"/>
+                  <portSpacing port="sink_out 1" spacing="0"/>
+                  <portSpacing port="sink_out 2" spacing="0"/>
+                </process>
+              </operator>
+              <operator activated="false" class="dummy" compatibility="5.2.008" expanded="true" height="60" name="KNN Undersampling no Label" width="90" x="313" y="165"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="false" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV" width="90" x="782" y="300">
+            <parameter key="csv_file" value="%{outputdir_}/%{outdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TEST.CSV"/>
+            <parameter key="column_separator" value=";"/>
+            <parameter key="write_attribute_names" value="true"/>
+            <parameter key="quote_nominal_values" value="true"/>
+            <parameter key="format_date_attributes" value="true"/>
+            <parameter key="append_to_file" value="false"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <connect from_port="example set" to_op="Print to Console (2)" to_port="through 1"/>
+          <connect from_op="Print to Console (2)" from_port="through 1" to_op="Read Content" to_port="in 1"/>
+          <connect from_op="Read Content" from_port="out 1" to_op="Set Role" to_port="example set input"/>
+          <connect from_op="Set Role" from_port="example set output" to_op="Set Role (3)" to_port="example set input"/>
+          <connect from_op="Set Role (3)" from_port="example set output" to_op="Write CSV (6)" to_port="input"/>
+          <portSpacing port="source_example set" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Read CSV" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Symbols" to_port="in 1"/>
+      <connect from_op="Read Symbols" from_port="out 1" to_op="Loop Values (2)" to_port="example set"/>
+      <connect from_op="Loop Values (2)" from_port="out 1" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>

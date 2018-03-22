@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Root">
+    <description>THIS IS THE LAST STEP OF PROCESS BEFORE TO BE APPLIED TO REAL WORLD. 
+THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HOW MUCH PROFIT THE ALGORITHM IS ABLE TO PROVIDE, SIMULATING BUYS ANS SELL GIVEN THE CLASSIFIER OUTCOME.</description>
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="595" width="614">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="300">
+        <parameter key="csv_file" value="c:/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character_for_quotes" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value="."/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+      </operator>
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="45" y="120">
+        <parameter key="macro_attribute" value="macro"/>
+        <parameter key="value_attribute" value="value"/>
+      </operator>
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w5" width="90" x="246" y="345">
+        <list key="macros">
+          <parameter key="window_size_" value="00:05:00"/>
+          <parameter key="ticket_" value="20160714"/>
+          <parameter key="delta_" value="5"/>
+          <parameter key="sim_experiment_" value="769"/>
+          <parameter key="sim_min_performance_" value="0.55"/>
+          <parameter key="windows_size_minus_1_" value="00:04:00"/>
+          <parameter key="run_" value="1"/>
+        </list>
+      </operator>
+      <operator activated="true" class="set_macros" compatibility="5.2.008" expanded="true" height="76" name="Set Macros w3" width="90" x="45" y="480">
+        <list key="macros">
+          <parameter key="window_size_" value="00:03:00"/>
+          <parameter key="ticket_" value="20160728"/>
+          <parameter key="delta_" value="3"/>
+          <parameter key="sim_experiment_" value="794"/>
+          <parameter key="sim_min_performance_" value="0.55"/>
+          <parameter key="windows_size_minus_1_" value="00:02:00"/>
+          <parameter key="run_" value="2"/>
+          <parameter key="set_of_experiments_" value="777,793,794"/>
+          <parameter key="sym_type_" value="w3pred"/>
+          <parameter key="run_count_" value="9"/>
+        </list>
+      </operator>
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w2" width="90" x="179" y="480">
+        <list key="macros">
+          <parameter key="window_size_" value="00:02:00"/>
+          <parameter key="ticket_" value="20160108"/>
+          <parameter key="delta_" value="2"/>
+          <parameter key="sim_experiment_" value="791"/>
+          <parameter key="sim_min_performance_" value="0.55"/>
+          <parameter key="windows_size_minus_1_" value="00:01:00"/>
+          <parameter key="run_" value="2"/>
+          <parameter key="run_count_" value="9"/>
+          <parameter key="sym_type_" value="w2pred"/>
+          <parameter key="set_of_experiments_" value="768,790,791"/>
+        </list>
+      </operator>
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w1" width="90" x="179" y="255">
+        <list key="macros">
+          <parameter key="window_size_" value="00:01:00"/>
+          <parameter key="ticket_" value="20150903"/>
+          <parameter key="delta_" value="1"/>
+          <parameter key="sim_experiment_" value="763"/>
+          <parameter key="sim_min_performance_" value="0.55"/>
+          <parameter key="windows_size_minus_1_" value="00:00:00"/>
+          <parameter key="run_count_" value="9"/>
+          <parameter key="sym_type_" value="w1pred"/>
+          <parameter key="set_of_experiments_" value="763,787,788"/>
+          <parameter key="run_" value="0"/>
+        </list>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Symbols" width="90" x="179" y="30">
+        <description>Colocar aqui somente os symbols com fmeasure &gt; 60 do ultimo exp.</description>
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="396" width="388">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (3)" width="90" x="45" y="75">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
+            <parameter key="username" value="root"/>
+            <parameter key="password" value="XpqvBbUHXlpAhiswHCXRnw=="/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1 &#10;AND s.exchange='NYSE' &#10;and portfolio like '%%{portfolio_}%' &#10;and symbol in &#10;(&#10;&#10;SELECT symbol FROM v_result_id  er WHERE  er.experiment_id IN &#10;(%{set_of_experiments_}) group by symbol &#10;having avg(gmean)&gt;= %{sim_min_performance_}&#10; &#10;)&#10;ORDER BY s.symbol&#10; &#10;&#10;&#10;&#10;"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="false" class="execute_sql" compatibility="5.2.008" expanded="true" height="60" name="Clean PlOutput" width="90" x="320" y="156">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="query" value="delete from pl_output"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+          </operator>
+          <connect from_op="Read Database (3)" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="loop_values" compatibility="5.2.008" expanded="true" height="76" name="Loop Values" width="90" x="313" y="120">
+        <parameter key="attribute" value="symbol"/>
+        <parameter key="iteration_macro" value="symbol_"/>
+        <parameter key="parallelize_iteration" value="false"/>
+        <process expanded="true" height="510" width="614">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Mktdata" width="90" x="45" y="300">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="&#10;SELECT id,symbol, last, TIMESTAMP(date_,utc_time_) AS datetime FROM mktdata WHERE&#10;symbol='%{symbol_}' AND date_ &gt;= (&#10;SELECT MIN(published) FROM  alignment a, rss n&#10;WHERE a.status=1 AND a.news_id=n.id AND a.symbol='%{symbol_}'  AND &#10;a.ticket LIKE '%%{ticket_}' )&#10;ORDER BY date_, utc_time_"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Prediction" width="90" x="45" y="75">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="438" width="547">
+              <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV" width="90" x="45" y="30">
+                <parameter key="csv_file" value="%{outputdir_}/%{symbol_}_%{delta_}_%{algo_}_TESTED_SMALL%{model_file_suffix_}_AGG%{run_}.CSV"/>
+                <parameter key="column_separators" value=";"/>
+                <parameter key="trim_lines" value="false"/>
+                <parameter key="use_quotes" value="true"/>
+                <parameter key="quotes_character" value="&quot;"/>
+                <parameter key="escape_character_for_quotes" value="\"/>
+                <parameter key="skip_comments" value="false"/>
+                <parameter key="comment_characters" value="#"/>
+                <parameter key="parse_numbers" value="true"/>
+                <parameter key="decimal_character" value="."/>
+                <parameter key="grouped_digits" value="false"/>
+                <parameter key="grouping_character" value=","/>
+                <parameter key="date_format" value=""/>
+                <parameter key="first_row_as_names" value="true"/>
+                <list key="annotations"/>
+                <parameter key="time_zone" value="SYSTEM"/>
+                <parameter key="locale" value="English (United States)"/>
+                <parameter key="encoding" value="SYSTEM"/>
+                <list key="data_set_meta_data_information"/>
+                <parameter key="read_not_matching_values_as_missings" value="true"/>
+                <parameter key="datamanagement" value="double_array"/>
+              </operator>
+              <operator activated="true" class="real_to_integer" compatibility="5.2.008" expanded="true" height="76" name="Real to Integer" width="90" x="112" y="120">
+                <parameter key="attribute_filter_type" value="single"/>
+                <parameter key="attribute" value="id"/>
+                <parameter key="attributes" value=""/>
+                <parameter key="use_except_expression" value="false"/>
+                <parameter key="value_type" value="real"/>
+                <parameter key="use_value_type_exception" value="false"/>
+                <parameter key="except_value_type" value="real"/>
+                <parameter key="block_type" value="value_series_end"/>
+                <parameter key="use_block_type_exception" value="false"/>
+                <parameter key="except_block_type" value="value_series_end"/>
+                <parameter key="invert_selection" value="false"/>
+                <parameter key="include_special_attributes" value="false"/>
+                <parameter key="round_values" value="false"/>
+              </operator>
+              <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role" width="90" x="246" y="30">
+                <parameter key="name" value="id"/>
+                <parameter key="target_role" value="id"/>
+                <list key="set_additional_roles"/>
+              </operator>
+              <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (2)" width="90" x="45" y="210">
+                <parameter key="define_connection" value="predefined"/>
+                <parameter key="connection" value="trademiner"/>
+                <parameter key="database_system" value="MySQL"/>
+                <parameter key="define_query" value="query"/>
+                <parameter key="query" value="SELECT a.id AS id&#10;, TIMESTAMP(next_trade_date,next_trade_time) AS published&#10;FROM  alignment a, rss n&#10;WHERE a.status=1 AND a.news_id=n.id AND a.symbol='%{symbol_}'  AND a.ticket LIKE '%%{ticket_}' AND clean_content IS NOT NULL &#10;ORDER BY n.published "/>
+                <parameter key="use_default_schema" value="true"/>
+                <parameter key="prepare_statement" value="false"/>
+                <enumeration key="parameters"/>
+                <parameter key="datamanagement" value="double_array"/>
+              </operator>
+              <operator activated="true" class="set_role" compatibility="5.2.008" expanded="true" height="76" name="Set Role (2)" width="90" x="246" y="300">
+                <parameter key="name" value="id"/>
+                <parameter key="target_role" value="id"/>
+                <list key="set_additional_roles"/>
+              </operator>
+              <operator activated="true" class="join" compatibility="5.2.008" expanded="true" height="76" name="Join" width="90" x="447" y="300">
+                <parameter key="remove_double_attributes" value="true"/>
+                <parameter key="join_type" value="inner"/>
+                <parameter key="use_id_attribute_as_key" value="true"/>
+                <list key="key_attributes"/>
+                <parameter key="keep_both_join_attributes" value="false"/>
+              </operator>
+              <connect from_op="Read CSV" from_port="output" to_op="Real to Integer" to_port="example set input"/>
+              <connect from_op="Real to Integer" from_port="example set output" to_op="Set Role" to_port="example set input"/>
+              <connect from_op="Set Role" from_port="example set output" to_op="Join" to_port="left"/>
+              <connect from_op="Read Database (2)" from_port="output" to_op="Set Role (2)" to_port="example set input"/>
+              <connect from_op="Set Role (2)" from_port="example set output" to_op="Join" to_port="right"/>
+              <connect from_op="Join" from_port="join" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
+          </operator>
+          <operator activated="true" class="print_to_console" compatibility="5.2.008" expanded="true" height="76" name="Print to Console (3)" width="90" x="246" y="75">
+            <parameter key="log_value" value="###  read model %{delta_}_%{algo_}_%{symbol_}.model"/>
+          </operator>
+          <operator activated="true" class="tutorial:Simple Strategy Simulator" compatibility="5.0.000" expanded="true" height="76" name="Simple Strategy Simulator" width="90" x="179" y="210">
+            <parameter key="aligner_window" value="%{windows_size_minus_1_}"/>
+            <parameter key="holdPeriod" value="3"/>
+            <parameter key="symbol" value="%{symbol_}"/>
+            <parameter key="ticketSize" value="10000.0"/>
+            <parameter key="predictionAtt" value="prediction"/>
+            <parameter key="dateTimeAtt" value="published"/>
+            <parameter key="mktdataDateTimeAtt" value="datetime"/>
+            <parameter key="mktdataOpenAtt" value="close"/>
+            <parameter key="mktdataPriceAtt" value="last"/>
+            <parameter key="timezone" value="GMT"/>
+            <parameter key="exchange_opentime" value="13:30:00"/>
+            <parameter key="exchange_closetime" value="20:00:00"/>
+            <parameter key="batchSize" value="1"/>
+            <parameter key="minimumProfitPercent" value="2.0"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="5.2.008" expanded="true" height="76" name="Generate Attributes" width="90" x="380" y="210">
+            <list key="function_descriptions">
+              <parameter key="run_count" value="&quot;%{run_count_}&quot;"/>
+              <parameter key="sym_type" value="&quot;%{sym_type_}&quot;"/>
+            </list>
+            <parameter key="use_standard_constants" value="true"/>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database" width="90" x="514" y="210">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="table_name" value="pl_output"/>
+            <parameter key="overwrite_mode" value="append"/>
+            <parameter key="set_default_varchar_length" value="false"/>
+            <parameter key="default_varchar_length" value="128"/>
+            <parameter key="add_generated_primary_keys" value="false"/>
+            <parameter key="db_key_attribute_name" value="generated_primary_key"/>
+            <parameter key="batch_size" value="1"/>
+          </operator>
+          <connect from_port="example set" to_op="Read Prediction" to_port="in 1"/>
+          <connect from_op="Read Mktdata" from_port="output" to_op="Simple Strategy Simulator" to_port="mktdata"/>
+          <connect from_op="Read Prediction" from_port="out 1" to_op="Print to Console (3)" to_port="through 1"/>
+          <connect from_op="Print to Console (3)" from_port="through 1" to_op="Simple Strategy Simulator" to_port="prediction"/>
+          <connect from_op="Simple Strategy Simulator" from_port="pl" to_op="Generate Attributes" to_port="example set input"/>
+          <connect from_op="Generate Attributes" from_port="example set output" to_op="Write Database" to_port="input"/>
+          <connect from_op="Write Database" from_port="through" to_port="out 1"/>
+          <portSpacing port="source_example set" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read PL" width="90" x="447" y="255">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="420" width="533">
+          <operator activated="false" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="137" y="97">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT 'TOTAL' ,(SELECT COUNT(*) FROM pl_output) AS operations,&#10;(&#10;SELECT ROUND(AVG(gmean)*100,2) FROM&#10;v_result_id  er WHERE&#10;er.experiment_id = %{sim_experiment_}&#10;AND gmean &gt;  %{sim_min_performance_} &#10;&#10;) AS gmean,&#10;(&#10;SELECT ROUND(AVG(avg_fmeasure)*100,2) FROM&#10;v_result_id  er WHERE&#10;er.experiment_id = %{sim_experiment_}&#10;AND gmean&gt;=  %{sim_min_performance_} &#10;&#10;) AS f_measure&#10;,&#10;(SELECT ROUND(SUM(profit),2) FROM pl_output l WHERE l.profit&lt;0 ) AS loss,&#10;(SELECT ROUND(SUM(profit),2) FROM pl_output l WHERE l.profit&gt;0 ) AS gain,&#10; ROUND (SUM(profit),2) AS profit, ROUND(SUM(profit)/(SELECT COUNT(*) FROM pl_output),2) AS return_by_roundtrip,&#10;ROUND(SUM(profit)/10000*100,2) AS ret_rate ,&#10;ROUND((SUM(profit/10000*100)-0.05)/STDDEV(profit/10000*100),2)  AS excess_return ,&#10;ROUND(STDDEV(profit/10000*100),2)  AS stdev_ret&#10;&#10;&#10;  FROM pl_output&#10; m UNION&#10;&#10;SELECT symbol, COUNT(*) AS operations,&#10;(&#10;SELECT ROUND(gmean*100,2) FROM&#10;v_result_id  er WHERE&#10;er.experiment_id = %{sim_experiment_}&#10;AND er.symbol= p.symbol&#10;&#10;) AS gmean&#10;,&#10;(&#10;SELECT ROUND(avg_fmeasure*100,2) FROM&#10;v_result_id  er WHERE&#10;er.experiment_id = %{sim_experiment_}&#10;AND er.symbol= p.symbol&#10;&#10;) AS f_measure,&#10;&#10;(SELECT ROUND(SUM(profit),2) FROM pl_output l WHERE l.profit&lt;0 AND l.symbol=p.symbol) AS loss,&#10;(SELECT ROUND(SUM(profit),2) FROM pl_output l WHERE l.profit&gt;0 AND l.symbol=p.symbol) AS gain,&#10;ROUND(SUM(profit),2) AS profit , ROUND(SUM(profit)/COUNT(*),2) AS return_by_roundtrip,&#10;ROUND(SUM(profit)/10000*100,2) AS ret_rate ,&#10;0 AS excess_return,&#10;0 AS stdev_ret&#10;FROM pl_output p&#10;GROUP BY symbol"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <connect from_op="Read Database" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Set Macros w3" to_port="through 1"/>
+      <connect from_op="Set Macros w3" from_port="through 1" to_op="Read Symbols" to_port="in 1"/>
+      <connect from_op="Read Symbols" from_port="out 1" to_op="Loop Values" to_port="example set"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+    </process>
+  </operator>
+</process>
