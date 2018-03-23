@@ -1,0 +1,862 @@
+<project name="RapidMiner_Unuk">
+	<description> Build file for RapidMiner 5.2</description>
+	<property file="build.properties" />
+	<property name="src" location="src" />
+	<property name="src_generated" location="src_generated" />
+	<property name="src_launcher" location="src_launcher" />
+	<property name="src_test" location="src_test" />
+
+	<property name="lib" location="lib" />
+	<property name="pluginslib" location="lib/plugins" />
+	<property name="build" location="build" />
+	<property name="test.build" location="build_test" />
+	<property name="installation.dir" location="installation" />
+	<property name="javadoc" location="javadoc" />
+	<property name="scripts" location="scripts" />
+	<property name="resources" location="resources" />
+	<property name="sample" location="sample" />
+	<property name="license" location="licenses/short_license.txt" />
+	<property name="release" location="release" />
+	<property name="release.files" location="${release}/files" />
+	<property name="release.includes" location="${release}/filesToInclude" />
+	<property name="jre32" location="jre/jre32" />
+	<property name="jre64" location="jre/jre64" />
+
+	<property name="junit.reports" location="junit-reports" />
+	<property name="junit.tests.dir" value="" />
+
+	<!-- compiler options -->
+	<property name="compiler.version" value="modern" />
+	<property name="compiler.debug" value="true" />
+	<property name="compiler.arguments" value="-Xlint:deprecation,finally,unchecked,path,serial" />
+	<property name="compiler.deprecation" value="yes" />
+
+	<!-- Update and release server properties -->
+	<property file="server.properties" />
+
+	<property name="makensis" value="makensis"/> <!-- Assume this is on the PATH -->
+	
+	<!-- Class Paths -->
+	<path id="rm.classpath">
+		<fileset dir="${lib}/">
+			<include name="*.jar" />
+			<exclude name="plugins/**/*" />
+		</fileset>
+		<fileset dir="${lib}/freehep">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${lib}/jdbc">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<path id="javadoc.classpath">
+		<path refid="rm.classpath" />
+		<pathelement location="${java.home}/jre/lib/rt.jar" />
+		<pathelement location="${java.home}/../jre/lib/rt.jar" />
+		<pathelement location="${java.home}/lib/tools.jar" />
+		<pathelement location="${java.home}/../lib/tools.jar" />
+		<pathelement location="${java.home}/classes" />
+	</path>
+	<path id="classpath">
+		<path refid="javadoc.classpath" />
+		<pathelement location="${build}" />
+	</path>
+	<path id="classpath.test">
+		<pathelement location="${test.build}" />
+		<path refid="classpath" />
+	</path>
+
+
+	<target name="init" depends="version.get" unless="lock.isInitialized">
+		<tstamp />
+		<!-- HTTP and Documentation tasks -->
+		<taskdef onerror="fail" resource="antlib.xml" classpath="ant/rapidAntTasks.jar" />
+
+		<!-- RPM Tasks-->
+		<taskdef onerror="fail" resource="org/freecompany/redline/ant/antlib.xml" classpath="ant/redline-1.1.3.jar" />
+
+		<!-- FOR Tasks -->
+		<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml" classpath="ant/ant-contrib-1.0b3.jar" />
+
+		<!-- SCP Tasks -->
+		<copy file="ant/jsch-0.1.42.jar" todir="${ant.library.dir}" failonerror="false" />
+
+		<mkdir dir="${build}" />
+		<mkdir dir="${test.build}" />
+		<mkdir dir="${pluginslib}" />
+		<echo file="${pluginslib}/Readme.txt">Copy downloaded plugins into this directory.</echo>
+		<mkdir dir="${javadoc}" />
+		<mkdir dir="${release}" />
+
+		<property name="lock.isInitialized" value="true" />
+	</target>
+
+	<target name="release.prepareDocumentation" depends="init" unless="lock.isDocumentationPrepared">
+		<downloadOperatorDocumentation resourcedir="${resources}" namespace="core" operatorsdocfile="resources/com/rapidminer/resources/i18n/OperatorsCoreDocumentation.xml" operatorsfile="resources/com/rapidminer/resources/OperatorsCore.xml" />
+		<property name="lock.isDocumentationPrepared" value="true" />
+	</target>
+
+	<target name="clean" unless="lock.isCleaned" description="Delete the build directory, java doc, rapidminer.jar">
+		<echo message="Cleaning..." />
+		<delete dir="${build}" />
+		<delete dir="${test.build}" />
+		<delete dir="${javadoc}" />
+		<mkdir dir="${build}" />
+		<mkdir dir="${javadoc}" />
+		<delete>
+			<fileset dir="./" defaultexcludes="no" includes="**/*~" />
+			<fileset dir="${lib}/" includes="rapidminer.jar" />
+			<fileset dir="${lib}/" includes="launcher.jar" />
+		</delete>
+
+		<property name="lock.isCleaned" value="true" />
+	</target>
+
+	<target name="copy-resources" unless="lock.isCopied" depends="init" description="This copies all resources to the build path.">
+		<echo message="Copying resources..." />
+		<copy todir="${build}">
+			<fileset dir="${resources}" includes="**/*" />
+		</copy>
+
+		<property name="lock.isCopied" value="true" />
+	</target>
+
+	<target name="build" depends="init, copy-resources,version.updateFiles" unless="lock.isBuilt" description="Compiles classes after copying resources to the build directory">
+		<echo message="RapidMiner: Compile with Java from dir: ${java.home}" />
+		<echo message="RapidMiner: using Java version: ${java.version}" />
+		<javac debug="${compiler.debug}" destdir="${build}" deprecation="${compiler.deprecation}" compiler="${compiler.version}" nowarn="true" fork="true" memorymaximumsize="400m" includeantruntime="false">
+			<compilerarg value="${compiler.arguments}" />
+
+			<classpath refid="classpath" />
+			<src path="${src}" />
+			<src path="${src_generated}" />
+			<src path="${src_launcher}" />
+			<!-- includes all ... -->
+			<include name="**/*.java" />
+			<!-- ...but Tests -->
+			<exclude name="**/test/*" />
+		</javac>
+
+		<property name="lock.isBuilt" value="true" />
+	</target>
+
+	<target name="createJar" depends="build" description="Generate the lib/rapidminer.jar file">
+		<echo message="Creating jar..." />
+		<pathconvert pathsep=" " property="manifest.classpath" refid="rm.classpath" dirsep="/">
+			<map from="${lib}/" to="" />
+		</pathconvert>
+		<echo message="Manifest Classpath: ${manifest.classpath}" />
+		<jar jarfile="${lib}/rapidminer.jar" update="false">
+			<fileset dir="${build}" excludes="*.class,com/rapid_i/Launcher*.class" includes="**/*" />
+			<manifest>
+				<attribute name="Specification-Title" value="RapidMiner" />
+				<attribute name="Specification-Version" value="${rapidminer.longversion}" />
+				<attribute name="Implementation-Title" value="RapidMiner" />
+				<attribute name="Implementation-Version" value="${rapidminer.longversion}-${platform}" />
+				<attribute name="Implementation-Vendor" value="Rapid-I" />
+				<attribute name="Specification-Vendor" value="Rapid-I" />
+				<attribute name="Implementation-URL" value="http://www.rapidminer.com" />
+				<attribute name="Class-Path" value="launcher.jar ${manifest.classpath}" />
+				<attribute name="Main-Class" value="com.rapidminer.gui.RapidMinerGUI" />
+			</manifest>
+		</jar>
+		<jar jarfile="${lib}/launcher.jar" update="true">
+			<fileset dir="${build}" excludes="*.class" includes="com/rapid_i/Launcher*.class" />
+			<manifest>
+				<attribute name="Specification-Title" value="RapidMinerLauncher" />
+				<attribute name="Specification-Version" value="${rapidminer.longversion}" />
+				<attribute name="Implementation-Title" value="RapidMinerLauncher" />
+				<attribute name="Implementation-Version" value="${rapidminer.longversion}-${platform}" />
+				<attribute name="Implementation-Vendor" value="Rapid-I" />
+				<attribute name="Specification-Vendor" value="Rapid-I" />
+				<attribute name="Implementation-URL" value="http://www.rapidminer.com" />
+				<attribute name="Class-Path" value="rapidminer.jar ${manifest.classpath}" />
+				<attribute name="Main-Class" value="com.rapid_i.Launcher" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="release.prepare" depends="clean, build" unless="lock.isPrepared" description="Copies all needed files to the release/files directory">
+		<echo message="Preparing Release..." />
+		<mkdir dir="${release.includes}" />
+		<copy toDir="${release.files}">
+			<fileset dir="./">
+				<include name="etc/**/*" />
+				<exclude name="etc/rapidminerrc.*" />
+				<include name="lib/**/*" />
+				<exclude name="lib/plugins/**/*" />
+				<include name="resources/**/*" />
+				<exclude name="sample/**/*.xml" />
+				<exclude name="sample/data/*" />
+				<exclude name="sample/*.tmp" />
+				<include name="INSTALL.txt" />
+				<include name="LICENSE.txt" />
+				<include name="CHANGES.txt" />
+				<include name="README.txt" />
+				<include name="build_extension.xml" />
+				<include name="build.xml" />
+				<include name="build.properties" />
+				<include name="prj.el" />
+				<exclude name="server.properties" />
+				<include name=".project" />
+				<include name=".classpath" />
+				<include name="licenses/**/*" />
+				<include name="scripts/**/*" />
+				<include name="src/**/*" />
+				<include name="src_generated/**/*" />
+				<include name="src_launcher/**/*" />
+				<include name="src_test/**/*" />
+				<exclude name="src/**/*.cache" />
+			</fileset>
+			<fileset dir="${release.includes}">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+
+		<property name="lock.isPrepared" value="true" />
+	</target>
+
+	<target name='release.makeRPM' depends='release.prepare' description="This will create a RPM for linux distributions">
+		<echo message="Releasing RPM..." />
+		<!-- Now creating rapidminer.jar and copy from lib to release path -->
+		<antcall target="createJar">
+			<param name="platform" value="WIN32" />
+		</antcall>
+		<copy file="${lib}/rapidminer.jar" todir="${release.files}/lib" />
+		<copy file="${lib}/launcher.jar" todir="${release.files}/lib" />
+
+		<taskdef resource="org/freecompany/redline/ant/antlib.xml" classpath="${ant.library.dir}/redline-1.1.3.jar" />
+		<rpm architecture='NOARCH' group='Applications' summary="RapidMiner ${rapidminer.shortversion} Community Edition" name='rapidminer' release="1" license="AGPL3" url="http://rapid-i.com" vendor="Rapid-I GmbH" packager="Marcin Skirzynski" version='${rapidminer.shortversion}' destination='${release}' description="RapidMiner is the world-wide leading open-source data mining solution due to the combination of its leading-edge technologies and its functional range. Applications of RapidMiner cover a wide range of real-world data mining tasks." xmlns="antlib:org.freecompany.redline.ant">
+			<zipfileset prefix='/usr/share/rapidminer' dir="${release.files}">
+				<include name="**/*" />
+				<exclude name="scripts/*.bat" />
+			</zipfileset>
+			<depends name="java" version="1.6" />
+			<link path='/usr/bin/rapidminer' target='/usr/share/rapidminer/scripts/rapidminer' />
+			<link path='/usr/bin/rapidminer-gui' target='/usr/share/rapidminer/scripts/RapidMinerGUI' />
+		</rpm>
+	</target>
+
+	<target name="release.deleteFiles" description="This will remove all temporary stored files if the release is finished.">
+		<echo message="Deleting release files..." />
+		<delete dir="${release.files}" />
+		<delete dir="${release.includes}" />
+	</target>
+
+	<target name="release.finish" unless="release.isMultiple" description="This will delete the files stored in release/files after release">
+		<!-- now call target for deletion: Is conditioned on property -->
+		<ant target="release.deleteFiles" />
+	</target>
+
+
+
+	<!-- Building release versions -->
+
+	<target name="release.makePlatformIndependent" depends="release.prepare" description="This creates the platform independent zip file">
+		<echo message="Releasing Platform independent zip..." />
+		<!-- Now creating rapidminer.jar and copy from lib to release path -->
+		<antcall target="createJar">
+			<param name="platform" value="ANY" />
+		</antcall>
+		<copy file="${lib}/rapidminer.jar" todir="${release.files}/lib" />
+		<copy file="${lib}/launcher.jar" todir="${release.files}/lib" />
+
+		<!-- Now zip everything together and put into release directory -->
+		<zip destfile="${release}/rapidminer-${rapidminer.longversion}.zip">
+			<zipfileset dir="${release.files}" prefix="rapidminer">
+				<include name="**" />
+			</zipfileset>
+		</zip>
+
+		<!-- Now tidy up release/files if not needed anymore -->
+		<ant target="release.finish" />
+	</target>
+
+	<target name="release.makeWin32Launcher">
+		<exec executable="${makensis}">
+			<arg line="installation/launcher.nsi" />
+		</exec>
+	</target>
+
+	<target name="release.makeWin32" depends="release.prepare" description="This creates the installer for the Windows32 platform">
+		<echo message="Releasing Windows32 Installer..." />
+		<!-- Now creating rapidminer.jar and copy from lib to release path -->
+		<antcall target="createJar">
+			<param name="platform" value="WIN32" />
+		</antcall>
+		<copy file="${lib}/rapidminer.jar" todir="${release.files}/lib" />
+		<copy file="${lib}/launcher.jar" todir="${release.files}/lib" />
+
+		<!-- Now build launcher: Will generate release/files/RapidMiner.exe -->
+		<exec executable="${makensis}">
+			<arg line="installation/launcher.nsi" />
+		</exec>
+
+		<!-- Copy JRE -->
+		<copy todir="${release.files}/jre">
+			<fileset dir="${jre32}" />
+		</copy>
+
+		<!-- Now build installer: Will generate release/rapidminer-${SHORT_VERSION}x32-install.exe -->
+		<exec executable="${makensis}">
+			<arg line="installation/installer.nsi" />
+		</exec>
+		<!-- rename it to long version-->
+		<move tofile="${release}/rapidminer-${rapidminer.longversion}x32-install.exe" file="${release}/rapidminer-${rapidminer.shortversion}x32-install.exe" />
+
+		<!-- delete OS-dependent files: RapidMiner.exe, JRE -->
+		<delete file="${release.files}/RapidMiner.exe" />
+		<delete dir="${release.files}/jre" />
+
+		<!-- Now tidy up release/files if not needed anymore -->
+		<ant target="release.finish" />
+	</target>
+
+	<target name="release.makeWin64" depends="release.prepare" description="This creates the installer for the Windows64 platform">
+		<echo message="Releasing Windows64 Installer..." />
+		<!-- Now creating rapidminer.jar and copy from lib to release path -->
+		<antcall target="createJar">
+			<param name="platform" value="WIN64" />
+		</antcall>
+		<copy file="${lib}/rapidminer.jar" todir="${release.files}/lib" />
+		<copy file="${lib}/launcher.jar" todir="${release.files}/lib" />
+
+		<!-- Now build launcher: Will generate release/files/RapidMiner.exe -->
+		<exec executable="${makensis}">
+			<arg line="installation/launcher_x64.nsi" />
+		</exec>
+
+		<!-- Copy JRE -->
+		<copy todir="${release.files}/jre">
+			<fileset dir="${jre64}" />
+		</copy>
+
+		<!-- Now build installer: Will generate release/rapidminer-${SHORT_VERSION}x64-install.exe -->
+		<exec executable="${makensis}">
+			<arg line="installation/installer_x64.nsi" />
+		</exec>
+		<!-- rename it to long version-->
+		<move tofile="${release}/rapidminer-${rapidminer.longversion}x64-install.exe" file="${release}/rapidminer-${rapidminer.shortversion}x64-install.exe" />
+
+
+		<!-- delete OS-dependent files: RapidMiner.exe, JRE -->
+		<delete file="${release.files}/RapidMiner.exe" />
+		<delete dir="${release.files}/jre" />
+
+		<!-- Now tidy up release/files if not needed anymore -->
+		<ant target="release.finish" />
+	</target>
+
+	<target name="release.makeAll" depends="release.prepare" description="This target releases all available platform versions">
+		<echo message="Releasing all versions..." />
+		<property name="release.isMultiple" value="true" />
+		<ant target="release.makePlatformIndependent" />
+		<ant target="release.makeWin32" />
+		<ant target="release.makeWin64" />
+
+		<!-- Deleting all release files without test-->
+		<ant target="release.deleteFiles" />
+	</target>
+
+
+
+
+	<!-- Publishing release -->
+
+	<target name="release.publish" depends="release.makeAll" description="This target builds a full release and uploads all files to source-forge.">
+		<echo message="Publishing release ${rapidminer.longversion}..." />
+		<!-- move files to proper directory for scping them to sf-net.-->
+		<move todir="${release}/scp/1. RapidMiner/${rapidminer.shortversion}">
+			<fileset dir="${release}">
+				<include name="*.zip" />
+				<include name="*.exe" />
+				<exclude name="update*.*" />
+			</fileset>
+		</move>
+
+		<echo message="Uploading to ${server.sf.user},${server.sf.project}@frs.sourceforge.net:${server.sf.url}..." />
+		<!-- scping -->
+		<scp remoteTodir="${server.sf.user},${server.sf.project}@frs.sourceforge.net:${server.sf.url}" password="${server.sf.password}" failonerror="false" trust="true">
+			<fileset dir="${release}/scp" includes="**/*.*" />
+		</scp>
+
+		<!-- correcting file permissions -->
+		<!--<for param="file">
+			<fileset dir="${release}/scp" includes="**/*.*" />
+			<sequential>
+			    <sshexec command="chmod 775 ${file}"  host="frs.sourceforge.net:${server.sf.url}" username="${server.sf.user},${server.sf.project}" password="${server.sf.password}" />
+			</sequential>
+		</for>
+        -->
+
+		<!-- move back and delete dir -->
+		<move todir="${release}">
+			<fileset dir="${release}/scp/1. RapidMiner/${rapidminer.shortversion}">
+				<include name="**/*.*" />
+			</fileset>
+		</move>
+		<delete dir="${release}/scp" />
+	</target>
+
+
+	<target name="release" depends="init" description="This will increase the version counter and generate all files with the new version, including update files and javadoc.">
+
+		<!-- testing if release should be built at all -->
+		<input message="Do you really want to create the new release ${rapidminer.longversion}? This will generate all platform install files, javadoc, update files and upload them as well on sourceforge as on the update server." validargs="yes,no" defaultvalue="no" addproperty="release.input">
+		</input>
+		<condition property="release.accepted">
+			<istrue value="${release.input}" />
+		</condition>
+		<fail unless="release.accepted" />
+		<echo message="Releasing started..." />
+
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${release}">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+
+		<ant target="version.updateFiles" />
+		<ant target="javaDoc.makeZip" />
+		<ant target="release.publish" />
+		<ant target="update.makeAll" />
+		<ant target="update.publish" />
+	</target>
+
+
+
+	<!-- Building Updates -->
+
+	<target name="update.makePlatformIndetendent" depends="release.prepare" description="This creates the platform independent zip file">
+		<echo message="Releasing Update Platform independent..." />
+
+		<!-- Same as platfrom independent zip file: Call it and rename result-->
+		<ant target="release.makePlatformIndependent" />
+		<copy file="${release}/rapidminer-${rapidminer.longversion}.zip" tofile="${release}/update_rapidminer-${rapidminer.longversion}.zip" />
+	</target>
+
+	<target name="update.makeWin32" depends="release.prepare" description="This creates the installer for the Windows32 platform">
+		<echo message="Releasing Windows32 Update..." />
+		<!-- Now creating rapidminer.jar and copy from lib to release path -->
+		<antcall target="createJar">
+			<param name="platform" value="WIN32" />
+		</antcall>
+		<copy file="${lib}/rapidminer.jar" todir="${release.files}/lib" />
+		<copy file="${lib}/launcher.jar" todir="${release.files}/lib" />
+
+		<!-- Now build launcher: Will generate release/files/RapidMiner.exe -->
+		<exec executable="${makensis}">
+			<arg line="installation/launcher.nsi" />
+		</exec>
+
+		<!-- Copy JRE -->
+		<copy todir="${release.files}/jre">
+			<fileset dir="${jre32}" />
+		</copy>
+
+		<!-- Now zip everything together and put into release directory -->
+		<zip destfile="${release}/update_rapidminer-${rapidminer.longversion}x32.zip">
+			<zipfileset dir="${release.files}" prefix="rapidminer">
+				<include name="**" />
+			</zipfileset>
+		</zip>
+
+		<!-- delete OS-dependent files: RapidMiner.exe, JRE -->
+		<delete file="${release.files}/RapidMiner.exe" />
+		<delete dir="${release.files}/jre" />
+
+		<!-- Now tidy up release/files if not needed anymore -->
+		<ant target="release.finish" />
+	</target>
+
+	<target name="update.makeWin64" depends="release.prepare" description="This creates the installer for the Windows64 platform">
+		<echo message="Releasing Windows64 Update..." />
+		<!-- Now creating rapidminer.jar and copy from lib to release path -->
+		<antcall target="createJar">
+			<param name="platform" value="WIN64" />
+		</antcall>
+		<copy file="${lib}/rapidminer.jar" todir="${release.files}/lib" />
+		<copy file="${lib}/launcher.jar" todir="${release.files}/lib" />
+
+		<!-- Now build launcher: Will generate release/files/RapidMiner.exe -->
+		<exec executable="${makensis}">
+			<arg line="installation/launcher_x64.nsi" />
+		</exec>
+
+		<!-- Copy JRE -->
+		<copy todir="${release.files}/jre">
+			<fileset dir="${jre64}" />
+		</copy>
+
+		<!-- Now zip everything together and put into release directory -->
+		<zip destfile="${release}/update_rapidminer-${rapidminer.longversion}x64.zip">
+			<zipfileset dir="${release.files}" prefix="rapidminer">
+				<include name="**" />
+			</zipfileset>
+		</zip>
+
+		<!-- delete OS-dependent files: RapidMiner.exe, JRE -->
+		<delete file="${release.files}/RapidMiner.exe" />
+		<delete dir="${release.files}/jre" />
+
+		<!-- Now tidy up release/files if not needed anymore -->
+		<ant target="release.finish" />
+	</target>
+
+	<target name="update.makeAll" depends="release.prepare" description="This target releases all available platform versions">
+		<echo message="Releasing all platform updates..." />
+		<property name="release.isMultiple" value="true" />
+		<ant target="update.makePlatformIndetendent" />
+		<ant target="update.makeWin32" />
+		<ant target="update.makeWin64" />
+
+		<!-- Deleting all release files without test-->
+		<ant target="release.deleteFiles" />
+	</target>
+
+
+
+	<!-- Uploading updates -->
+
+	<target name="update.publish" depends="init" description="This will generate a new update and upload files for all platforms.">
+		<echo message="Publishing update ${rapidminer.longversion} using ${server.update.user} to update server..." />
+		<echo message="...Platform Independent" />
+		<put targetUrl="${server.update.url}/rapidminer/${rapidminer.longversion}/ANY" uploadFile="${release}/update_rapidminer-${rapidminer.longversion}.zip" username="${server.update.user}" password="${server.update.password}" />
+		<echo message="...Windows 32" />
+		<put targetUrl="${server.update.url}/rapidminer/${rapidminer.longversion}/WIN32" uploadFile="${release}/update_rapidminer-${rapidminer.longversion}x32.zip" username="${server.update.user}" password="${server.update.password}" />
+		<echo message="...Windows 64" />
+		<put targetUrl="${server.update.url}/rapidminer/${rapidminer.longversion}/WIN64" uploadFile="${release}/update_rapidminer-${rapidminer.longversion}x64.zip" username="${server.update.user}" password="${server.update.password}" />
+
+		<echo message="Publishing update ${rapidminer.longversion} using ${server.marketplace.user} to Marketplace..." />
+		<echo message="...Platform Independent" />
+		<put targetUrl="${server.marketplace.url}/rapidminer/${rapidminer.longversion}/ANY" uploadFile="${release}/update_rapidminer-${rapidminer.longversion}.zip" username="${server.marketplace.user}" password="${server.marketplace.password}" />
+		<echo message="...Windows 32" />
+		<put targetUrl="${server.marketplace.url}/rapidminer/${rapidminer.longversion}/WIN32" uploadFile="${release}/update_rapidminer-${rapidminer.longversion}x32.zip" username="${server.marketplace.user}" password="${server.marketplace.password}" />
+		<echo message="...Windows 64" />
+		<put targetUrl="${server.marketplace.url}/rapidminer/${rapidminer.longversion}/WIN64" uploadFile="${release}/update_rapidminer-${rapidminer.longversion}x64.zip" username="${server.marketplace.user}" password="${server.marketplace.password}" />
+
+	</target>
+
+	<target name="update" depends="init" description="This target will perform a full update including file generation and uploading them to the update server.">
+		<input message="Do you really want to create the update to ${rapidminer.longversion}? This will generate all update files and upload to the server." validargs="yes,no" addproperty="update.input">
+		</input>
+		<condition property="update.accepted">
+			<istrue value="${update.input}" />
+		</condition>
+		<fail unless="update.accepted" />
+		<echo message="Updating started..." />
+		<ant target="version.updateFiles" />
+		<ant target="update.makeAll" />
+		<ant target="update.publish" />
+	</target>
+
+	<!-- BEGIN Test targets -->
+	<target name="test.compile" depends="test.clean">
+		<javac debug="${compiler.debug}" destdir="${test.build}" deprecation="${compiler.deprecation}" compiler="${compiler.version}" nowarn="true" fork="true" memorymaximumsize="400m">
+
+			<classpath refid="classpath" />
+			<src path="${src_test}" />
+			<src path="${src}/com/rapidminer/test_utils" />
+		</javac>
+	</target>
+
+	<target name="test.clean">
+		<mkdir dir="${junit.reports}" />
+		<delete>
+			<fileset dir="${test.build}" includes="**/test/*.class" />
+			<fileset dir="${junit.reports}" />
+		</delete>
+	</target>
+	
+    <target name="test.init.test_class" unless="rapidminer.test.test_class">
+       <property name="rapidminer.test.test_class" value="com.rapidminer.test.AllTests" />
+    </target>
+
+
+	<target name="test" depends="test.compile, test.init.test_class">
+		<junit>
+			<sysproperty key="rapidminer.test.repository.url" value="${rapidminer.test.repository.url}" />
+			<sysproperty key="rapidminer.test.repository.location" value="${rapidminer.test.repository.location}" />
+			<sysproperty key="rapidminer.test.repository.user" value="${rapidminer.test.repository.user}" />
+			<sysproperty key="rapidminer.test.repository.password" value="${rapidminer.test.repository.password}" />
+			<sysproperty key="rapidminer.config.dir" value="${rapidminer.test.config.dir}" />
+			<sysproperty key="java.util.logging.config.file" value="${java.util.logging.config.file}" />
+			<classpath refid="classpath.test" />
+			<formatter type="xml" usefile="true" />
+			<!-- <formatter type="plain" usefile="false" /> -->
+			<test name="${rapidminer.test.test_class}" todir="${junit.reports}" />
+		</junit>
+	</target>
+	<!-- END Test targets -->
+
+	<!-- Version handling -->
+
+	<target name="version.get">
+		<property name="rapidminer.shortversion" value="${rapidminer.version}.${rapidminer.revision}" />
+		<property name="rapidminer.longversion" value="${rapidminer.version}.${rapidminer.revision}.${rapidminer.update}" />
+
+		<!-- ant target="version.updateFiles" / -->
+	</target>
+
+	<target name="version.increaseUpdate" description="This might be called seperately to increase the update number of the version.">
+		<echo message="Increasing Update Number..." />
+
+		<propertyfile file="build.properties">
+			<entry type="int" key="rapidminer.update" operation="+" value="1" pattern="000" />
+		</propertyfile>
+
+		<property name="rapidminer.shortversion" value="${rapidminer.version}.${rapidminer.revision}" />
+		<property name="rapidminer.longversion" value="${rapidminer.version}.${rapidminer.revision}.${rapidminer.update}" />
+
+		<ant target="version.updateFiles" />
+	</target>
+
+	<target name="version.updateFiles">
+		<property name="rapidminer.shortversion" value="${rapidminer.version}.${rapidminer.revision}" />
+		<property name="rapidminer.longversion" value="${rapidminer.version}.${rapidminer.revision}.${rapidminer.update}" />
+
+		<!-- Installer version-->
+		<mkdir dir="installation" />
+		<echo file="installation/version.nsi">
+            !define SHORT_VERSION ${rapidminer.shortversion}
+            !define LONG_VERSION ${rapidminer.longversion}.0
+        </echo>
+
+		<!-- Version.java -->
+		<replaceregexp file="${src}/com/rapidminer/RapidMinerVersion.java" 
+			match="VERSION_STRING = &quot;(.*)&quot;;" 
+			replace="VERSION_STRING = &quot;${rapidminer.longversion}&quot;;" />
+		<echo message="Updating to version ${rapidminer.longversion}" />
+		<!--
+		<delete file="${src}/com/rapidminer/RapidMinerVersion.java" />
+		<copy file="${license}" tofile="${src}/com/rapidminer/RapidMinerVersion.java" />		
+		<echo file="${src}/com/rapidminer/RapidMinerVersion.java" append="true">package com.rapidminer;
+			import com.rapidminer.gui.tools.VersionNumber;
+			/** This
+           class is generated by the ant target &quot;version.updateFiles&quot; to ensure the correct
+           version number in RapidMiner. */ public class RapidMinerVersion extends VersionNumber { 
+			public RapidMinerVersion() {super("${rapidminer.longversion}");}
+			}</echo>-->
+	</target>
+
+
+	<!-- StyleChecks -->
+
+	<target name="check.countTotalLines" depends="build" description="Prints the total amount of written lines.">
+		<echo message="Count lines of RapidMiner core..." />
+		<java classname="StyleCheck" classpath="${build}">
+			<arg value="total_lines" />
+			<arg value="${src}" />
+		</java>
+	</target>
+	<target name="check.listBigClasses" depends="build" description="Prints all classes with a high number of lines.">
+		<java classname="StyleCheck" classpath="${build}">
+			<arg value="size_check" />
+			<arg value="800" />
+			<arg value="${src}" />
+		</java>
+	</target>
+	<target name="check.comments" depends="build" description="Prints all classes with a missing class comment.">
+		<java classname="StyleCheck" classpath="${build}">
+			<arg value="comment_check" />
+			<arg value="${src}" />
+		</java>
+	</target>
+	<target name="check.authorTags" depends="build" description="Prints all classes with a missing '@author' tag.">
+		<java classname="StyleCheck" classpath="${build}" failonerror="true">
+			<arg value="author_check" />
+			<arg value="${src}" />
+		</java>
+		<java classname="StyleCheck" classpath="${build}" failonerror="true">
+			<arg value="author_check" />
+			<arg value="${src_test}" />
+		</java>
+	</target>
+	<target name="check.listAuthorLines" depends="build" description="Prints all authors and the number of classes and lines they wrote.">
+		<java classname="StyleCheck" classpath="${build}">
+			<arg value="all_authors" />
+			<arg value="${src}/com" />
+		</java>
+	</target>
+	<target name="check.listAuthorClasses" depends="build" description="Prints all classes written by a specific author.">
+		<input addproperty="check.author" message="The name of the author to list his classes?" />
+		<java classname="StyleCheck" classpath="${build}">
+			<arg value="author_list" />
+			<arg value="${src}/com" />
+			<arg value="${check.author}" />
+		</java>
+	</target>
+	<target name="check.license" depends="build" description="Prints all classes with a missing license.">
+		<java classname="StyleCheck" classpath="${build}" failonerror="true">
+			<arg value="license_check" />
+			<arg value="${license}" />
+			<arg value="${src}" />
+		</java>
+		<java classname="StyleCheck" classpath="${build}" failonerror="true">
+			<arg value="license_check" />
+			<arg value="${license}" />
+			<arg value="${src_test}" />
+		</java>
+	</target>
+	<target name="check.listOperators" depends="build" description="Prints all operator names of the core in a grouped list.">
+		<java classname="OperatorListCreator">
+			<classpath refid="classpath" />
+			<arg value="operator_list.txt" />
+		</java>
+	</target>
+	<target name="check.prependLicense" depends="build" description="Prepend license terms to the java files">
+		<java classname="LicensePrepender" classpath="${build}">
+			<arg value="${license}" />
+			<arg value="${src}" />
+		</java>
+		<java classname="LicensePrepender" classpath="${build}">
+			<arg value="${license}" />
+			<arg value="${src_test}" />
+		</java>
+	</target>
+	<target name="check.removeVersionTags" depends="build" description="Remove the version tags from the class files">
+		<java classname="RemoveClassVersionTags" classpath="${build}">
+			<arg value="${src}/com/rapidminer" />
+		</java>
+	</target>
+
+
+
+	<!-- JavaDoc -->
+
+	<target name="javaDoc.makeZip" depends="javaDoc.generate" description="This generates new java doc from source files a zips them for relase into the release dir.">
+		<echo message="Releasing java doc..." />
+		<zip destfile="${release}/rapidminer-${rapidminer.longversion}-javadoc.zip">
+			<zipfileset dir="./javadoc" prefix="rapidminer-${rapidminer.shortversion}/javadoc/">
+				<include name="**/*" />
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="javaDoc.generate" depends="init, clean, build" description="Generate the java class documentation">
+		<echo message="Generating java doc..." />
+		<javadoc sourcepath="${src}" packagenames="com.*" destdir="${javadoc}" maxmemory="900m" author="true" version="true" windowtitle="RapidMiner Class Documentation" use="true">
+			<!-- breakiterator="true" -->
+			<classpath refid="javadoc.classpath" />
+			<doctitle>
+				<![CDATA[<h1>RapidMiner ${rapidminer.shortversion} Class Documentation</h1>]]></doctitle>
+		<footer>
+			<![CDATA[<a href="http://sourceforge.net/projects/yale" target="_blank">
+			<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=114160&type=16" width="150" height="40" />
+		</a>]]></footer>
+	<bottom>
+		<![CDATA[<i>Copyright &#169; 2001-2009 by <a href="http://rapid-i.com" target="_blank">Rapid-I</a>
+	</i>]]></bottom>
+<!-- Links are not supported here -->
+<tag name="rapidminer.todo" description="To do:" />
+<tag name="rapidminer.index" description="Keywords:" scope="types" />
+<tag name="rapidminer.xmlclass" description="XML classname:" scope="types" />
+<taglet name="com.rapidminer.doc.CiteTaglet" path="${build}" />
+<taglet name="com.rapidminer.doc.RefTaglet" path="${build}" />
+<taglet name="com.rapidminer.doc.ReferenceTaglet" path="${build}" />
+<taglet name="com.rapidminer.doc.MathTaglet" path="${build}" />
+<taglet name="com.rapidminer.doc.XMLExampleTaglet" path="${build}" />
+</javadoc>
+</target>
+
+<!-- *********** RPM build *********** -->
+
+
+<property file="build.rpm.properties" />
+
+<target name="rpm-prepare">
+
+<delete dir="${rpm.dir}" />
+
+<mkdir dir="${rpm.dir}" />
+<mkdir dir="${rpm.build.dir}" />
+<mkdir dir="${rpm.buildroot.dir}" />
+<mkdir dir="${rpm.sources.dir}" />
+<mkdir dir="${rpm.specs.dir}" />
+<mkdir dir="${rpm.rpms.dir}" />
+<mkdir dir="${rpm.srpms.dir}" />
+
+<mkdir dir="${rpm.sources.rapidminer.dir}" />
+
+<copy todir="${rpm.sources.rapidminer.dir}/lib">
+<fileset dir="${lib}" />
+</copy>
+<copy todir="${rpm.sources.rapidminer.dir}/scripts">
+<fileset dir="${scripts}">
+	<exclude name="*.bat" />
+</fileset>
+
+</copy>
+<copy todir="${rpm.sources.rapidminer.dir}">
+<fileset dir="${rpm.installation.dir}">
+	<exclude name="${rpm.spec.file}" />
+</fileset>
+</copy>
+
+<copy file="${rpm.installation.dir}/${rpm.spec.file}" todir="${rpm.specs.dir}" />
+<replace file="${rpm.specs.dir}/${rpm.spec.file}" token="%{_version-from-ant}" value="${rapidminer.version}.${rapidminer.revision}" />
+
+
+<tar destfile="${rpm.sources.dir}/${rpm.rapidminer.tar}" basedir="${rpm.sources.dir}" />
+<gzip destfile="${rpm.sources.dir}/${rpm.rapidminer.tar.gz}" src="${rpm.sources.dir}/${rpm.rapidminer.tar}" />
+
+<delete file="${rpm.sources.dir}/${rpm.rapidminer.tar}" />
+
+
+</target>
+
+<target name="rpm-build" depends="createJar,rpm-prepare" description="Builds a RPM package. Works only on linux computer with rpm installed">
+<rpm specFile="rapidminer.spec" topDir="${rpm.dir}" command="-ba" cleanBuildDir="false" failOnError="true" />
+
+<copy todir="${rpm.dir}/">
+<fileset dir="${rpm.dir}/RPMS/noarch/" />
+</copy>
+</target>
+
+
+<target name="wsimport.repository" description="Import the WSDL description of the Repository Web Service.">
+<mkdir dir="${src_generated}" />
+<exec executable="wsimport" dir="${basedir}">
+<arg value="-Xdebug" />
+<arg value="-keep" />
+<arg value="-p" />
+<arg value="com.rapid_i.repository.wsimport" />
+<arg value="-s" />
+<arg file="${src_generated}" />
+<arg value="-Xnocompile" />
+<arg value="-extension" />
+<arg value="http://localhost:8080/RAWS/RepositoryService?wsdl" />
+</exec>
+<exec executable="wsimport" dir="${basedir}">
+<arg value="-Xdebug" />
+<arg value="-keep" />
+<arg value="-p" />
+<arg value="com.rapid_i.repository.wsimport" />
+<arg value="-s" />
+<arg file="${src_generated}" />
+<arg value="-Xnocompile" />
+<arg value="-extension" />
+<arg value="http://localhost:8080/RAWS/ProcessService?wsdl" />
+</exec>
+
+	<exec executable="wsimport" dir="${basedir}">
+	<arg value="-Xdebug" />
+	<arg value="-keep" />
+	<arg value="-p" />
+	<arg value="com.rapid_i.repository.wsimport.mgt" />
+	<arg value="-s" />
+	<arg file="${src_generated}" />
+	<arg value="-Xnocompile" />
+	<arg value="-extension" />
+	<arg value="http://localhost:8080/RAWS/ManagementService?wsdl" />
+	</exec>
+</target>
+
+<target name="signJars" depends="createJar" description="Don't forget to add jarsign.alias and jarsign.storepass to the file server.properties">
+<signjar lazy="true" alias="${jarsign.alias}" storepass="${jarsign.storepass}">
+<path>
+	<fileset dir="${lib}" includes="**/*.jar" />
+</path>
+</signjar>
+</target>
+</project>

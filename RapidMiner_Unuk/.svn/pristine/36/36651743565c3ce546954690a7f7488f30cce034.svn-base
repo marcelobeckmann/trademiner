@@ -1,0 +1,88 @@
+#!/bin/sh
+
+## set the path to your RapidMiner installation here or in an environment variable
+#RAPIDMINER_HOME=${HOME}
+
+## set the maximum amount of memory Java uses here or in an environment variable
+#MAX_JAVA_MEMORY=256
+
+## set the path to the files with additional operators here or in an environment variable
+#RAPIDMINER_OPERATORS_ADDITIONAL=
+
+if [ -z "${RAPIDMINER_HOME}" ] ; then
+    BIN_DIR=`dirname "$0"`
+    RAPIDMINER_HOME=`dirname "${BIN_DIR}"`
+    echo "RAPIDMINER_HOME is not set. Trying the directory '${RAPIDMINER_HOME}'..."
+fi 
+
+# JAVA_HOME set, so use it
+if [ ! -z "${JAVA_HOME}" ] ; then
+	if [ -x "${JAVA_HOME}/bin/java" ]; then
+		JAVA="${JAVA_HOME}/bin/java"
+	fi
+fi
+# otherwise, try to find java using which
+if [ -z "${JAVA}" ] ; then
+	_jfnd="`which java`"
+	if [ -x "${_jfnd}" ]; then
+		JAVA="${_jfnd}"
+	else
+		echo 'Could not find the java executable in default path or ${JAVA_HOME}/bin/java.'
+		echo "Edit $0 and/or your local startup files."
+		exit 1
+	fi
+	unset _jfnd
+fi
+
+if [ -z "${MAX_JAVA_MEMORY}" ] ; then
+    MAX_JAVA_MEMORY=512
+    echo "No maximum Java memory defined, using 512 Mb..."
+fi
+
+if [ -z "${RAPIDMINER_JDBC_DRIVERS}" ] ; then
+  	RAPIDMINER_JDBC_DRIVER_PARAMETER=""
+else
+  	RAPIDMINER_JDBC_DRIVER_PARAMETER=-Drapidminer.init.jdbc.location=${RAPIDMINER_JDBC_DRIVERS}
+fi
+
+BUILD="${RAPIDMINER_HOME}/build"
+RAPIDMINER_JAR="${RAPIDMINER_HOME}/lib/rapidminer.jar"
+RAPIDMINER_CLASSPATH=""
+
+if [ -d "${BUILD}" ] ; then
+    RAPIDMINER_CLASSPATH=${BUILD}
+elif [ -f "${RAPIDMINER_JAR}" ] ; then
+    RAPIDMINER_CLASSPATH=${RAPIDMINER_JAR}
+else
+    echo "Neither ${BUILD} nor ${RAPIDMINER_JAR} was found."
+    echo "Try 'ant build' or 'ant dist' first or check the value of RAPIDMINER_HOME!"
+    exit 1
+fi
+
+for JAR in ${RAPIDMINER_HOME}/lib/*.jar ${RAPIDMINER_HOME}/lib/jdbc/*.jar ${RAPIDMINER_HOME}/lib/freehep/*.jar
+do
+CLASSPATH=${CLASSPATH}:${JAR}
+done
+
+CLASSPATH=${RAPIDMINER_CLASSPATH}:${CLASSPATH}
+
+
+update_dir=${RAPIDMINER_HOME}/RUinstall
+    if [ -d "${update_dir}" ]; then
+      echo "Performing update..."
+	  cp -rf "${update_dir}"/* "${RAPIDMINER_HOME}"
+      rm -rf "${update_dir}"
+    fi
+
+
+
+echo "Starting RapidMiner from '${RAPIDMINER_HOME}', using classes from '${RAPIDMINER_CLASSPATH}'..."
+    
+$JAVA \
+    -Xmx${MAX_JAVA_MEMORY}m \
+    -XX:MaxPermSize=128m\
+	-cp ${CLASSPATH} \
+	-Drapidminer.home=${RAPIDMINER_HOME} \
+	-Drapidminer.operators.additional=${RAPIDMINER_OPERATORS_ADDITIONAL} \
+	${RAPIDMINER_JDBC_DRIVER_PARAMETER} \
+	com.rapidminer.RapidMinerCommandLine $@

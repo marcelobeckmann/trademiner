@@ -1,0 +1,56 @@
+This file describes which Operators has been renamed, replaced, removed or modified. Dependencies are mentioned where needed.
+
+Applies to: OperatorChain
+Action: removed from process
+Condition: is single operator in process
+
+Applies to: IterativeWeightOptimization
+Action: deleted
+
+Applies to: WeightOptimization
+Action: deleted
+
+Applies to: IOContainerReader
+Action: deleted
+Replacement: replace by single IOObjectReader's
+
+Applies to: IOContainerWriter
+Action: deleted
+Replacement: replace by single IOObjectWriter's
+
+Applies to: AttributeFilter
+ Parameter: parameter_string
+ Action: renamed to attribute_name
+ Condition: Parameter condition_class set to attribute_name_filter
+
+ Parameter: parameter_string
+ Action: renamed to numeric_condition
+ Condition: Parameter condition_class set to numeric_value_filter
+
+ Parameter: invert_filter
+ Action: renamed to invert_selection
+ 
+ Parameter: apply_on_special
+ Action: renamed to include_special_attributes
+
+Applies to: AttributeSubsetPreprocessing
+ Parameter: attribute_name_regex
+ Action: renamed to attribute_name
+ Condition: Parameter condition_class set to attribute_name_filter
+
+ Parameter: parameter_string
+ Action: renamed to numeric_condition
+ Condition: Parameter condition_class set to numeric_value_filter
+
+ Parameter: parameter_string
+ Action: renamed to numeric_condition
+
+ Parameter: process_special_attributes
+ Action: renamed to include_special_attributes
+
+Applies to: PrincipalComponentsGenerator     #Operator was removed
+Action: deleted
+Action: replace operator by PCA
+ Parameter: min_variance_coverage
+ Action: renamed to variance_threshold
+ 

@@ -1,0 +1,20 @@
+getOutputClasses() geändert in:
+- ValueIteration
+- MultipleLabelIteration
+- ExceptionHandling
+- ValueSubgroupIteration
+
+- TODO:
+  - Remove classes: WriterMultiplier?
+  - Remove checkIO
+  - XML aus Parameters raus
+  - Altes XML Gelumpe raus
+  - declare deprecated: 
+  		ValidationChain.PARAMETER_CREATE_COMPLETE_MODEL,
+  		PreprocessingOperator.PARAMETER_RETURN_PREPROCESSING_MODEL,
+  		LogisticRegression.PARAMETER_RETURN_PERFORMANCE,
+  		JMySVMLearner.PARAMETER_ESTIMATE_PERFORMANCE
+  		AbstractMySVMLearner.PARAMETER_CALCULATE_WEIGHTS
+  		
+  - honor Operator.shouldAutoConnectPort()
+  - SimplePopulationEvaluator raus

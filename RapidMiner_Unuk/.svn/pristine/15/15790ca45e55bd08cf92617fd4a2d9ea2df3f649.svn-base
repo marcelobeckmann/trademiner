@@ -1,0 +1,10 @@
+Some of the RapidMiner init methods have changed.
+In order to control which initializations are performed, set the following system properties 
+(programatically by using System.setProperty(), or by using java -Dproperty=value)
+
+- rapidminer.init.operators specify the main RapidMiner operator descriptor. This must be a resource, 
+  i.e. it is relative to the classpath. 
+- rapidminer.operators.additional to specify operator descriptor files (not resources) to be loaded.
+  Multiple files can be separated by the path separator (";" or ":", depending on the OS)
+- rapidminer.init.weka to specify whether Weka should be loaded.
+  
