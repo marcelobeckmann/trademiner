@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="file:///home/simon/workspace/RapidMiner_Vega/" href="">
+    <information>
+        <title>RapidMiner 5.0</title>
+        <vendor>Rapid-I</vendor>
+        <icon href="deploy/rapidminer_icon.png" kind="default"/>
+        <icon href="deploy/splashscreen_community.png" kind="splash"/>
+        <shortcut online="true">
+           <desktop/>
+           <menu submenu="Rapid-I"/>
+         </shortcut>        
+         
+        <homepage>http://www.rapidminer.com</homepage>
+        
+         <offline-allowed/> 
+         
+    	 <association mime-type="application-x/x-rapidminer" extensions="rmp"/>
+    	 
+    </information>
+    
+    <security>      
+      <all-permissions/>
+    </security>
+    
+    <resources>
+        <!-- Application Resources -->
+        <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+        <jar href="./lib/rapidminer.jar" main="true" />
+        <property name="rapidminer.home" value="/home/simon/rmtest/"/>
+    </resources>
+    
+    <application-desc
+         name="Dynamic Tree Demo Application"
+         main-class="com.rapidminer.gui.RapidMinerGUI"
+         width="300"
+         height="300">
+     </application-desc>
+     
+     <update check="background"/>
+</jnlp>

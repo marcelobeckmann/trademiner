@@ -1,0 +1,78 @@
+1. If your operator inherits from OperatorChain, think of good names for the 
+   subprocesses and pass them to the constructor of OperatorChain.
+
+2. Define ports.
+
+   Look into the dev-folder inside the RapidMiner project. There you will find a file
+   "templates.xml". In Eclipse, choose Window -> Preferences -> Java -> Editor -> Teplates 
+   and import this file.
+   
+   type one of "inport", "outport", "insink", "outsink" and press Ctrl-Space to generate ports.
+   
+   For every access to getInput(MyIOObject.class) in apply(), add one input port:
+   
+     private InputPort myIOObjectInput = getInputPorts().createPort("my io object", MyIOObject.class);
+   
+   The second argument to the factory method is a convenience method that adds a simple pre-condition
+   to this port which makes it a mandatory input which must be of type MyIOObject. If that does not suit
+   your needs, register a suitable Precondition to the port.
+   
+   If this is an operator chain, also add ports for the subprocesses. The OutputPorts are called
+   Sources, and the InputPorts are called Sinks.
+   
+   
+ 3. Define transformation rules in the constructor.
+ 
+    For every output port, add a rule to the meta data transformer that describes, how this
+    output port is created. E.g. for a port always creating a fixed output, use
+
+	    getTransformer().addRule(new GenerateNewRule(myOutputPort, new MetaData(...))); 
+
+    If the port's output is always identical to an input, use the following convenience method:
+
+		getTransformer().addPassThroughRule(inputPort, outputPort);
+	
+	If the port't output is almost identical to an input, use this idiom:
+	
+		getTransformer().addPassThroughRule(new PassThroughRule(inputPort, outputPort, false) {
+		    @Override
+		    public MetaData modifyMetaData(MetaData md) {
+		       //modify the meta data
+		       return md;
+		    }
+		});
+	
+	If your meta data is of type ExampleSetMetaData, look into ExampleSetPassThroughRule.
+	
+4. Implement the method doWork() (formerly apply())
+
+   Collect your data from the output ports, and in the end, deliver it to the output ports:
+   
+      IOObject input = inputPort.getData();
+      IOObject result = simpleImplementationOfComplicatedAlgorithm(input);
+      outputPort.deliver(result);
+
+
+6. If the model contained a method getInputDescription, know that this method added a parameter
+   keep_my_ioobject by which the user could decide whether or not the MyIOObject was passed 
+   through. This is no longer necessary since unnecessary IOObjects do not clutter up the
+   process. If you don't want them, simply don't connect the port. If their computation is
+   time consuming, only compute them if the port is connected. Now, we can remove the
+   getInputDescription(), but that would mean that we cannot import processes from RM 4.4 or
+   earlier. Hence, implement a method like this:
+   
+     @Override
+     public boolean shouldAutoConnect(OutputPort port) {
+        if (port == myKeepableOutputPort) {
+            return getParameterAsBoolean("keep_my_ioobject");
+        } else {
+            return super.shouldAutoConnect(port);
+        }
+     }   
+    
+    This will guarantee that legacy processes are wired correctly. Note that the parameter
+    keep_my_ioobject is not declared and hence invisible (and, as discussed above, unnecessary)
+    in RapidMiner 5.0
+    
+
+   
