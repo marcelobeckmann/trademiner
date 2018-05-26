@@ -1,34 +1,41 @@
 macro;value
+# Defines which stock symbols will be retrieved from database, given the index they are associated
 index_;DJIA
-experiment_description_;ALL, STARTING W2V
+# Gives a description of what algorithms and parameters are used for this run
+experiment_description_;all,REPRODICING BASELINE #763, AGGREGATION ,delta=1, REDOING OPT PARM WITH _KNNUND suffix files, BLACKLIST,KEEP FILES, SVM RBF, k=21 t=2 ,TRAINING INTERVAL 6M, RESTRICTIVE ALIGNMENT WITH DELTA 00:02:00,WEIGHT BY X2, 0.2, COSINE, N3GRAM,FIVE-DAYS BY FIVE-DAYS, SEPARATED TRAIN/TEST FROM >31/MAY TO <=06/SET, TF/IDF,GRID-SEARCH FOR C & GAMMA WITH FMEASURE, 2 CLASSES [-20]2, NO WEIGHTED AVG FOR PERFORMANCE, LIBSVM GRID-SEARCH ,NO TIMEZONE ADJUST,NEW_MACRO_SCHEMA,0_SHIFT, MKTDATA, CHI2
+# Defines the windows size (tau) in minutes for news alignment, see section 4.5.1 from Thesis
 window_size_;00:01:00
-#ticket_;20160108 02:00
-#ticket_;20160714 05:00
-#01:00
+# Each arrangement of alignment between news and prices are stored in a table. The result of this alignment defines how the news article is labeled (SURGE, NOT_RECOMENDED, PLUNGE)
 ticket_;20150903
-#03:00
-#ticket_;20160728
+# This is the implementation of alignment that worked well so far and is expresses in the Thesis
 aligner_impl_=RestrictiveAlignment
+# The host to MySQL database
 db_host;localhost
+# This is the same as window_size, but in a numeric format for convenient storage in database columns and file names
 delta_;1
-#put all for all symbols
-#partial
-#all
-portfolio_;top5
+# It's possible to associate a stock symbol with a portfolio (identified by the column portfolio in the table symbol), and run this portfolio instead of all symbols
+# To run all symbols, put all. There are also top5, top6, top9, partial, etc. You can create your own set of portfolio adding a portfolio name to column portfolio of table symbol.
+portfolio_;all
+# The number of k-neighbors for KNNUND, see section 4.3.3 of Thesis
 k_;21
+# This is the decision threshold for KNNUND, see section 4.3.3 of Thesis
 t_;2
 mt_;4
+# This is the attribute weight for Feature Removal by Chi Square, see section 4.3.2 of Thesis
 att_weight_;0.10
-#c:/home/nelson/rm
-outputdir_;d:/var/tmp/output
+# This is where the intermediate CSV files will be created
+outputdir_;/data/output_1
+# This is to identify which run the experiment is repeated (In the Thesis the experiment was repeated 10 times). 
+# KEEP IT AS 1 if you want to run just once.
 run_;1
+# This is the machine learning algorithm used in the experiments, see section 4.3.4 of Thesis
 algo_;libsvm
-#the table name where the result will be written
+# The table name where the classification results will be written
 outputtable_;experiment_result_auc4
 ###########################################################
 # class definition parameters                             #
 ###########################################################
-#this "_02" is for "improved one against all" schema only, keep with empty for normal modelling
+# this "_02" is for "improved one against all" schema only, keep with empty for normal modelling
 model_file_suffix_;_NOKNN
 model_file_noknn_;
 #keep "-2,0,2" to consider all classes
@@ -43,7 +50,12 @@ min_performance_;0.50
 #next_trade_date_;2013/06/03
 #end_test_date_;2013/09/02
 #outdir_;D0603
+#prev_outdir;D0722
 training_interval_;6
 ##########################################################
-sim_experiment_;777
-sim_min_performance_;0.55
+#gets the last experiment for delta=1, you can also put a specific experiment id here
+sim_experiment_;(SELECT id FROM experiment WHERE delta=1 ORDER BY id DESC LIMIT 1)
+sim_min_performance_;0.60
+windows_size_minus_1_;00:00:00
+run_count_;1
+sym_type_;w1pred

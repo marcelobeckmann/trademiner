@@ -14,7 +14,7 @@
     <parameter key="process_duration_for_mail" value="30"/>
     <parameter key="encoding" value="SYSTEM"/>
     <parameter key="parallelize_main_process" value="false"/>
-    <process expanded="true" height="595" width="614">
+    <process expanded="true" height="522" width="614">
       <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="30">
         <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
         <parameter key="column_separators" value=";"/>
@@ -42,7 +42,7 @@
         <parameter key="macro_attribute" value="macro"/>
         <parameter key="value_attribute" value="value"/>
       </operator>
-      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w2" width="90" x="45" y="480">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w2" width="90" x="246" y="390">
         <list key="macros">
           <parameter key="window_size_" value="00:02:00"/>
           <parameter key="ticket_" value="20160108"/>
@@ -50,15 +50,15 @@
           <parameter key="run_" value="1"/>
         </list>
       </operator>
-      <operator activated="true" class="set_macros" compatibility="5.2.008" expanded="true" height="76" name="Set Macros w1" width="90" x="246" y="255">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w1" width="90" x="45" y="255">
         <list key="macros">
           <parameter key="window_size_" value="00:01:00"/>
           <parameter key="ticket_" value="20150903"/>
           <parameter key="delta_" value="1"/>
-          <parameter key="run_" value="perc_adj3"/>
+          <parameter key="run_" value="3"/>
         </list>
       </operator>
-      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w3" width="90" x="45" y="390">
+      <operator activated="true" class="set_macros" compatibility="5.2.008" expanded="true" height="76" name="Set Macros w3" width="90" x="45" y="435">
         <list key="macros">
           <parameter key="window_size_" value="00:03:00"/>
           <parameter key="ticket_" value="20160728"/>
@@ -66,7 +66,7 @@
           <parameter key="run_" value="3"/>
         </list>
       </operator>
-      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w5" width="90" x="45" y="300">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w5" width="90" x="45" y="345">
         <list key="macros">
           <parameter key="window_size_" value="00:05:00"/>
           <parameter key="ticket_" value="20160714"/>
@@ -85,7 +85,7 @@
             <parameter key="username" value="root"/>
             <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
             <parameter key="define_query" value="query"/>
-            <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1&#10;AND  s.exchange='NYSE'  &#10;-- ajustar isso&#10;and s.portfolio LIKE '%%{portfolio_}%'&#10;-- and s.symbol='DD'&#10; ORDER BY s.symbol&#10;&#10;"/>
+            <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1&#10;AND  s.exchange='NYSE'  &#10;-- ajustar isso&#10;and s.portfolio LIKE '%%{portfolio_}%'&#10; ORDER BY s.symbol&#10;&#10;"/>
             <parameter key="use_default_schema" value="true"/>
             <parameter key="prepare_statement" value="false"/>
             <enumeration key="parameters"/>
@@ -190,9 +190,8 @@
           <operator activated="true" class="optimize_parameters_evolutionary" compatibility="5.2.008" expanded="true" height="94" name="Optimize Parameters (Evolutionary)" width="90" x="447" y="345">
             <list key="parameters">
               <parameter key="Aggregate Decision By TradeDatetime.minority_boolean_operator" value="[1.0;6.0]"/>
-              <parameter key="Aggregate Decision By TradeDatetime.majority_boolean_operator" value="[1.0;6.0]"/>
-              <parameter key="Aggregate Decision By TradeDatetime.hour" value="[13;20]"/>
               <parameter key="Aggregate Decision By TradeDatetime.minority_threshold" value="[-1.0;15]"/>
+              <parameter key="Aggregate Decision By TradeDatetime.majority_boolean_operator" value="[1.0;6.0]"/>
               <parameter key="Aggregate Decision By TradeDatetime.majority_threshold" value="[-1.0;20]"/>
             </list>
             <parameter key="max_generations" value="80"/>
@@ -217,17 +216,16 @@
                 <parameter key="prediction_att" value="prediction"/>
                 <parameter key="minority_boolean_operator" value="4"/>
                 <parameter key="minority_threshold" value="6"/>
-                <parameter key="majority_boolean_operator" value="2"/>
+                <parameter key="majority_boolean_operator" value="1"/>
                 <parameter key="conjunction_boolean_operator" value="1"/>
-                <parameter key="majority_threshold" value="1"/>
-                <parameter key="hour" value="15"/>
+                <parameter key="majority_threshold" value="11"/>
                 <parameter key="check_black_list" value="false"/>
                 <parameter key="remove_duplicates_at_end" value="false"/>
                 <parameter key="verbose" value="false"/>
-                <parameter key="parameters_to_string" value="&gt;=0.16586958 &amp; &lt;=1.0"/>
-                <parameter key="use_percents" value="true"/>
-                <parameter key="minority_threshold_percent" value="0.16586958077863273"/>
-                <parameter key="majority_threshold_percent" value="1.0"/>
+                <parameter key="parameters_to_string" value="&gt;=6.0 &amp; &lt;11.0"/>
+                <parameter key="use_percents" value="false"/>
+                <parameter key="minority_threshold_percent" value="0.1"/>
+                <parameter key="majority_threshold_percent" value="0.9"/>
               </operator>
               <operator activated="true" class="generate_attributes" compatibility="5.2.008" expanded="true" height="76" name="Generate Attributes" width="90" x="246" y="210">
                 <list key="function_descriptions">
@@ -327,7 +325,7 @@
             </process>
           </operator>
           <operator activated="true" class="write_parameters" compatibility="5.2.008" expanded="true" height="60" name="Write Parameters" width="90" x="654" y="272">
-            <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_%{run_}.parm"/>
+            <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_ii_%{run_}.parm"/>
             <parameter key="encoding" value="SYSTEM"/>
           </operator>
           <connect from_port="example set" to_op="Print to Console" to_port="through 1"/>
@@ -341,8 +339,8 @@
         </process>
       </operator>
       <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
-      <connect from_op="Read Macros From Data" from_port="example set" to_op="Set Macros w1" to_port="through 1"/>
-      <connect from_op="Set Macros w1" from_port="through 1" to_op="Read Symbols" to_port="in 1"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Set Macros w3" to_port="through 1"/>
+      <connect from_op="Set Macros w3" from_port="through 1" to_op="Read Symbols" to_port="in 1"/>
       <connect from_op="Read Symbols" from_port="out 1" to_op="Print to Console (2)" to_port="through 1"/>
       <connect from_op="Print to Console (2)" from_port="through 1" to_op="Loop Values" to_port="example set"/>
       <portSpacing port="source_input 1" spacing="0"/>

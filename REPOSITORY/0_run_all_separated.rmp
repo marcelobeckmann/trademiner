@@ -88,7 +88,7 @@
             <parameter key="log_value" value="##############################  next_trade_date: %{next_trade_date_},  end_test_date: %{end_test_date_}"/>
           </operator>
           <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="FG_text_vetorization" width="90" x="179" y="30">
-            <parameter key="process_location" value="FG_text_vectorization_att_reduction_train_w2v"/>
+            <parameter key="process_location" value="FG_text_vectorization_att_reduction_train"/>
             <parameter key="use_input" value="false"/>
             <parameter key="store_output" value="true"/>
             <parameter key="propagate_metadata_recursively" value="false"/>
@@ -100,7 +100,7 @@
               <parameter key="outdir_" value="%{outdir_}"/>
             </list>
           </operator>
-          <operator activated="false" class="execute_process" compatibility="5.2.008" expanded="true" height="60" name="FG_text_vetorization test" width="90" x="313" y="255">
+          <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="FG_text_vetorization test" width="90" x="313" y="255">
             <parameter key="process_location" value="FG_text_vectorization_att_reduction_test"/>
             <parameter key="use_input" value="false"/>
             <parameter key="store_output" value="true"/>
@@ -113,7 +113,7 @@
               <parameter key="outdir_" value="%{outdir_}"/>
             </list>
           </operator>
-          <operator activated="false" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="H_train" width="90" x="447" y="255">
+          <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="H_train" width="90" x="447" y="255">
             <parameter key="process_location" value="H_train"/>
             <parameter key="use_input" value="false"/>
             <parameter key="store_output" value="true"/>
@@ -126,7 +126,7 @@
               <parameter key="outdir_" value="%{outdir_}"/>
             </list>
           </operator>
-          <operator activated="false" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="I_test_separated" width="90" x="581" y="255">
+          <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="I_test_separated" width="90" x="581" y="255">
             <parameter key="process_location" value="I_test_separated"/>
             <parameter key="use_input" value="false"/>
             <parameter key="store_output" value="true"/>
@@ -141,12 +141,15 @@
           </operator>
           <connect from_port="example set" to_op="Print to Console (2)" to_port="through 1"/>
           <connect from_op="Print to Console (2)" from_port="through 1" to_op="FG_text_vetorization" to_port="input 1"/>
+          <connect from_op="FG_text_vetorization" from_port="result 1" to_op="FG_text_vetorization test" to_port="input 1"/>
+          <connect from_op="FG_text_vetorization test" from_port="result 1" to_op="H_train" to_port="input 1"/>
+          <connect from_op="H_train" from_port="result 1" to_op="I_test_separated" to_port="input 1"/>
           <portSpacing port="source_example set" spacing="0"/>
           <portSpacing port="sink_out 1" spacing="0"/>
           <portSpacing port="sink_out 2" spacing="0"/>
         </process>
       </operator>
-      <operator activated="false" class="execute_process" compatibility="5.2.008" expanded="true" height="60" name="I_test_read_separated" width="90" x="581" y="210">
+      <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="I_test_read_separated" width="90" x="581" y="210">
         <parameter key="process_location" value="I_test_separated_compute_metrics_agg"/>
         <parameter key="use_input" value="false"/>
         <parameter key="store_output" value="true"/>
@@ -162,6 +165,7 @@
       <connect from_op="Read CSV" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
       <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Trading Days" to_port="in 1"/>
       <connect from_op="Read Trading Days" from_port="out 1" to_op="Loop Values Fixed" to_port="example set"/>
+      <connect from_op="Loop Values Fixed" from_port="out 1" to_op="I_test_read_separated" to_port="input 1"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
     </process>

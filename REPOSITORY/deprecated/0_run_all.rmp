@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<process version="5.2.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="all"/>
+    <parameter key="logfile" value="/var/tmp/output/rm.log"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <parameter key="parallelize_main_process" value="false"/>
+    <process expanded="true" height="386" width="413">
+      <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="E_alignment" width="90" x="45" y="30">
+        <parameter key="process_location" value="E_alignment"/>
+        <parameter key="use_input" value="false"/>
+        <parameter key="store_output" value="true"/>
+        <parameter key="propagate_metadata_recursively" value="false"/>
+        <parameter key="cache_process" value="false"/>
+        <list key="macros"/>
+      </operator>
+      <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="FG_text_vetorization" width="90" x="246" y="30">
+        <parameter key="process_location" value="FG_text_vectorization_att_reduction"/>
+        <parameter key="use_input" value="false"/>
+        <parameter key="store_output" value="true"/>
+        <parameter key="propagate_metadata_recursively" value="false"/>
+        <parameter key="cache_process" value="false"/>
+        <list key="macros"/>
+      </operator>
+      <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="H_train" width="90" x="45" y="165">
+        <parameter key="process_location" value="H_train"/>
+        <parameter key="use_input" value="false"/>
+        <parameter key="store_output" value="true"/>
+        <parameter key="propagate_metadata_recursively" value="false"/>
+        <parameter key="cache_process" value="false"/>
+        <list key="macros"/>
+      </operator>
+      <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="I_test_1" width="90" x="246" y="165">
+        <parameter key="process_location" value="I_test"/>
+        <parameter key="use_input" value="false"/>
+        <parameter key="store_output" value="true"/>
+        <parameter key="propagate_metadata_recursively" value="false"/>
+        <parameter key="cache_process" value="false"/>
+        <list key="macros"/>
+      </operator>
+      <operator activated="true" class="execute_process" compatibility="5.2.008" expanded="true" height="76" name="J_visualize" width="90" x="246" y="300">
+        <parameter key="process_location" value="J_visualize_results"/>
+        <parameter key="use_input" value="false"/>
+        <parameter key="store_output" value="true"/>
+        <parameter key="propagate_metadata_recursively" value="false"/>
+        <parameter key="cache_process" value="false"/>
+        <list key="macros"/>
+      </operator>
+      <connect from_port="input 1" to_op="E_alignment" to_port="input 1"/>
+      <connect from_op="E_alignment" from_port="result 1" to_op="FG_text_vetorization" to_port="input 1"/>
+      <connect from_op="FG_text_vetorization" from_port="result 1" to_op="H_train" to_port="input 1"/>
+      <connect from_op="H_train" from_port="result 1" to_op="I_test_1" to_port="input 1"/>
+      <connect from_op="I_test_1" from_port="result 1" to_op="J_visualize" to_port="input 1"/>
+      <connect from_op="J_visualize" from_port="result 1" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="source_input 2" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>

@@ -201,7 +201,7 @@
             <parameter key="deselect_unknown" value="true"/>
             <parameter key="use_absolute_weights" value="false"/>
           </operator>
-          <operator activated="true" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV (3)" width="90" x="648" y="300">
+          <operator activated="false" class="write_csv" compatibility="5.2.008" expanded="true" height="76" name="Write CSV (3)" width="90" x="648" y="300">
             <parameter key="csv_file" value="%{outputdir_}/%{outdir_}/%{symbol_}_%{delta_}_%{ticket_}_k%{k_}_TRAIN_NOKNN.CSV"/>
             <parameter key="column_separator" value=";"/>
             <parameter key="write_attribute_names" value="true"/>
@@ -302,8 +302,7 @@
           <connect from_op="ChiSquaredWeighting" from_port="weights" to_op="Write Weights" to_port="input"/>
           <connect from_op="ChiSquaredWeighting" from_port="example set" to_op="AttributeWeightSelection (2)" to_port="example set input"/>
           <connect from_op="Write Weights" from_port="through" to_op="AttributeWeightSelection (2)" to_port="weights"/>
-          <connect from_op="AttributeWeightSelection (2)" from_port="example set output" to_op="Write CSV (3)" to_port="input"/>
-          <connect from_op="Write CSV (3)" from_port="through" to_op="KNN Undersampling" to_port="example set"/>
+          <connect from_op="AttributeWeightSelection (2)" from_port="example set output" to_op="KNN Undersampling" to_port="example set"/>
           <connect from_op="KNN Undersampling" from_port="example set" to_op="Write CSV (2)" to_port="input"/>
           <portSpacing port="source_example set" spacing="0"/>
           <portSpacing port="sink_out 1" spacing="0"/>

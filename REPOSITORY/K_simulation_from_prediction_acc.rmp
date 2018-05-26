@@ -16,8 +16,8 @@ THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HO
     <parameter key="encoding" value="SYSTEM"/>
     <parameter key="parallelize_main_process" value="false"/>
     <process expanded="true" height="595" width="614">
-      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="300">
-        <parameter key="csv_file" value="c:/home/nelson/rm/REPOSITORY/macros.csv"/>
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="30">
+        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
         <parameter key="column_separators" value=";"/>
         <parameter key="trim_lines" value="false"/>
         <parameter key="use_quotes" value="true"/>
@@ -39,11 +39,11 @@ THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HO
         <parameter key="read_not_matching_values_as_missings" value="true"/>
         <parameter key="datamanagement" value="double_array"/>
       </operator>
-      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="45" y="120">
+      <operator activated="true" class="tutorial:Read Macros From Data" compatibility="5.0.000" expanded="true" height="60" name="Read Macros From Data" width="90" x="45" y="255">
         <parameter key="macro_attribute" value="macro"/>
         <parameter key="value_attribute" value="value"/>
       </operator>
-      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w5" width="90" x="246" y="345">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w5" width="90" x="447" y="480">
         <list key="macros">
           <parameter key="window_size_" value="00:05:00"/>
           <parameter key="ticket_" value="20160714"/>
@@ -54,7 +54,7 @@ THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HO
           <parameter key="run_" value="1"/>
         </list>
       </operator>
-      <operator activated="true" class="set_macros" compatibility="5.2.008" expanded="true" height="76" name="Set Macros w3" width="90" x="45" y="480">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w3" width="90" x="313" y="480">
         <list key="macros">
           <parameter key="window_size_" value="00:03:00"/>
           <parameter key="ticket_" value="20160728"/>
@@ -82,7 +82,7 @@ THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HO
           <parameter key="set_of_experiments_" value="768,790,791"/>
         </list>
       </operator>
-      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w1" width="90" x="179" y="255">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w1" width="90" x="45" y="480">
         <list key="macros">
           <parameter key="window_size_" value="00:01:00"/>
           <parameter key="ticket_" value="20150903"/>
@@ -278,10 +278,10 @@ THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HO
           <portSpacing port="sink_out 2" spacing="0"/>
         </process>
       </operator>
-      <operator activated="false" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read PL" width="90" x="447" y="255">
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read PL" width="90" x="447" y="255">
         <parameter key="parallelize_nested_chain" value="false"/>
         <process expanded="true" height="420" width="533">
-          <operator activated="false" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="137" y="97">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="137" y="97">
             <parameter key="define_connection" value="predefined"/>
             <parameter key="connection" value="trademiner"/>
             <parameter key="database_system" value="MySQL"/>
@@ -294,16 +294,19 @@ THIS PROVES IF THE PREDICTION IS EFECTIVE FOR FINANCIAL MARKET, AS THIS SHOWS HO
           </operator>
           <connect from_op="Read Database" from_port="output" to_port="out 1"/>
           <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
           <portSpacing port="sink_out 1" spacing="0"/>
           <portSpacing port="sink_out 2" spacing="0"/>
         </process>
       </operator>
       <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
-      <connect from_op="Read Macros From Data" from_port="example set" to_op="Set Macros w3" to_port="through 1"/>
-      <connect from_op="Set Macros w3" from_port="through 1" to_op="Read Symbols" to_port="in 1"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Symbols" to_port="in 1"/>
       <connect from_op="Read Symbols" from_port="out 1" to_op="Loop Values" to_port="example set"/>
+      <connect from_op="Loop Values" from_port="out 1" to_op="Read PL" to_port="in 1"/>
+      <connect from_op="Read PL" from_port="out 1" to_port="result 1"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
     </process>
   </operator>
 </process>

@@ -51,13 +51,13 @@
           <parameter key="run_" value="2"/>
         </list>
       </operator>
-      <operator activated="true" class="set_macros" compatibility="5.2.008" expanded="true" height="76" name="Set Macros w1" width="90" x="246" y="255">
+      <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w1" width="90" x="380" y="390">
         <list key="macros">
-          <parameter key="experiment_description_" value="all, BASELINE #763 AFTER THESIS, PERC_REPEAT,  RUN=1 ii, delta=1, BLACKLIST,KEEP FILES, SVM RBF, k=21 t=2 ,TRAINING INTERVAL 6M, RESTRICTIVE ALIGNMENT WITH DELTA 00:02:00,WEIGHT BY X2, 0.2, COSINE, N3GRAM,FIVE-DAYS BY FIVE-DAYS, SEPARATED TRAIN/TEST FROM &gt;31/MAY TO &lt;=06/SET, TF/IDF,GRID-SEARCH FOR C &amp; GAMMA WITH FMEASURE, 2 CLASSES [-20]2, NO WEIGHTED AVG FOR PERFORMANCE, LIBSVM GRID-SEARCH ,NO TIMEZONE ADJUST,NEW_MACRO_SCHEMA,0_SHIFT, MKTDATA, CHI2"/>
+          <parameter key="experiment_description_" value="all, BASELINE #763, RUN=1 ii, delta=1, REDOING OPT PARM WITH _KNNUND suffix files, BLACKLIST,KEEP FILES, SVM RBF, k=21 t=2 ,TRAINING INTERVAL 6M, RESTRICTIVE ALIGNMENT WITH DELTA 00:02:00,WEIGHT BY X2, 0.2, COSINE, N3GRAM,FIVE-DAYS BY FIVE-DAYS, SEPARATED TRAIN/TEST FROM &gt;31/MAY TO &lt;=06/SET, TF/IDF,GRID-SEARCH FOR C &amp; GAMMA WITH FMEASURE, 2 CLASSES [-20]2, NO WEIGHTED AVG FOR PERFORMANCE, LIBSVM GRID-SEARCH ,NO TIMEZONE ADJUST,NEW_MACRO_SCHEMA,0_SHIFT, MKTDATA, CHI2"/>
           <parameter key="window_size_" value="00:01:00"/>
           <parameter key="ticket_" value="20150903"/>
           <parameter key="delta_" value="1"/>
-          <parameter key="run_" value="perc_repeat"/>
+          <parameter key="run_" value="1"/>
         </list>
       </operator>
       <operator activated="false" class="set_macros" compatibility="5.2.008" expanded="true" height="60" name="Set Macros w5" width="90" x="246" y="390">
@@ -197,7 +197,7 @@
             <parameter key="parallelize_nested_chain" value="false"/>
             <process expanded="true" height="629" width="1018">
               <operator activated="true" class="read_parameters" compatibility="5.2.008" expanded="true" height="60" name="Read Parameters" width="90" x="179" y="165">
-                <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_%{run_}.parm"/>
+                <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_ii_%{run_}.parm"/>
               </operator>
               <operator activated="true" class="set_parameters" compatibility="5.2.008" expanded="true" height="60" name="Set Parameters" width="90" x="447" y="165">
                 <list key="name_map">
@@ -214,19 +214,18 @@
           </operator>
           <operator activated="true" class="tutorial:Aggregate Decision By TradeDatetime" compatibility="5.0.000" expanded="true" height="76" name="Aggregate Decision By TradeDatetime_" width="90" x="380" y="255">
             <parameter key="prediction_att" value="prediction"/>
-            <parameter key="minority_boolean_operator" value="4"/>
-            <parameter key="minority_threshold" value="6"/>
-            <parameter key="majority_boolean_operator" value="6"/>
+            <parameter key="minority_boolean_operator" value="1"/>
+            <parameter key="minority_threshold" value="4"/>
+            <parameter key="majority_boolean_operator" value="5"/>
             <parameter key="conjunction_boolean_operator" value="1"/>
-            <parameter key="majority_threshold" value="2"/>
-            <parameter key="hour" value="19"/>
+            <parameter key="majority_threshold" value="5"/>
             <parameter key="check_black_list" value="true"/>
             <parameter key="remove_duplicates_at_end" value="true"/>
             <parameter key="verbose" value="false"/>
-            <parameter key="parameters_to_string" value="&gt;=6.0 &amp; !=2.0"/>
+            <parameter key="parameters_to_string" value="&lt;4.0 &amp; &gt;5.0"/>
             <parameter key="use_percents" value="false"/>
-            <parameter key="minority_threshold_percent" value="0.16586958077863273"/>
-            <parameter key="majority_threshold_percent" value="0.9924314178137976"/>
+            <parameter key="minority_threshold_percent" value="0.1"/>
+            <parameter key="majority_threshold_percent" value="0.9"/>
           </operator>
           <operator activated="true" class="filter_examples" compatibility="5.2.008" expanded="true" height="76" name="Filter Examples (2)" width="90" x="380" y="30">
             <parameter key="condition_class" value="attribute_value_filter"/>
@@ -246,7 +245,7 @@
             <parameter key="add_3label" value="false"/>
           </operator>
           <operator activated="true" class="tutorial:Performance (Weka)" compatibility="5.0.000" expanded="true" height="60" name="Performance (Weka)" width="90" x="648" y="210">
-            <parameter key="experiment_description" value="%{algo_}, %{ticket_}, %{window_size_},%{experiment_description_}"/>
+            <parameter key="experiment_description" value="%{timestamp_},%{algo_}, %{ticket_}, %{window_size_},%{experiment_description_}"/>
             <parameter key="predictionAtt" value="prediction"/>
             <parameter key="experiment_symbol" value="%{symbol_}"/>
             <parameter key="accuracy" value="true"/>
@@ -294,8 +293,7 @@
         </process>
       </operator>
       <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
-      <connect from_op="Read Macros From Data" from_port="example set" to_op="Set Macros w1" to_port="through 1"/>
-      <connect from_op="Set Macros w1" from_port="through 1" to_op="Read Symbols" to_port="in 1"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Symbols" to_port="in 1"/>
       <connect from_op="Read Symbols" from_port="out 1" to_op="Print to Console (2)" to_port="through 1"/>
       <connect from_op="Print to Console (2)" from_port="through 1" to_op="Loop Values" to_port="example set"/>
       <portSpacing port="source_input 1" spacing="0"/>
