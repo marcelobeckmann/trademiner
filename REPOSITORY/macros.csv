@@ -56,6 +56,6 @@ training_interval_;6
 #gets the last experiment for delta=1, you can also put a specific experiment id here
 sim_experiment_;(SELECT id FROM experiment WHERE delta=1 ORDER BY id DESC LIMIT 1)
 sim_min_performance_;0.60
-windows_size_minus_1_;00:00:00
+windows_size_minus_1_;00:01:00
 run_count_;1
 sym_type_;w1pred

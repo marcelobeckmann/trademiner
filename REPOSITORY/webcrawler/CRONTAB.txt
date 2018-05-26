@@ -1,5 +1,5 @@
-*/5 * * * * /home/nelson/rm/REPOSITORY/webcrawler/A_obtain_news__rss_reader.sh >> /var/tmp/A_obtain_news__rss_reader.log 2>&1
-*/40 1-6 * * * /home/nelson/rm/REPOSITORY/webcrawler/A_obtain_news_content_updater_no_rm.sh >> /var/tmp/A_obtain_news_content_updater_no_rm.log 2>&1
-30 6 * * * /home/nelson/rm/REPOSITORY/webcrawler/C_text_cleaning.sh >> /var/tmp/C_text_cleaning.log 2>&1
-*/1 8-17 * * 1-5 /home/nelson/rm/REPOSITORY/webcrawler/B_obtain_quotes.sh >> /var/tmp/B_obtain_quotes.log 2>&1
-30 17 * * 1-5 /home/nelson/rm/REPOSITORY/webcrawler/D_quote_label.sh >> /var/tmp/D_quote_label.log 2>&1
+*/5 * * * * /home/ubuntu/REPOSITORY/webcrawler/A_obtain_news__rss_reader.sh >> /data/logs/A_obtain_news__rss_reader.log 2>&1
+*/40 1-6 * * * /home/ubuntu/REPOSITORY/webcrawler/A_obtain_news_content_updater_no_rm.sh >> /data/logs/A_obtain_news_content_updater_no_rm.log 2>&1
+30 6 * * * /home/ubuntu/REPOSITORY/webcrawler/C_text_cleaning.sh >> /data/logs/C_text_cleaning.log 2>&1
+*/1 8-17 * * 1-5 /home/ubuntu/REPOSITORY/webcrawler/B_obtain_quotes.sh >> /data/logs/B_obtain_quotes.log 2>&1
+30 17 * * 1-5 /home/ubuntu/REPOSITORY/webcrawler/D_quote_label.sh >> /data/logs/D_quote_label.log 2>&1
