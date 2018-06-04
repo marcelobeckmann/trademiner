@@ -20,6 +20,13 @@ algo_;libsvm
 #the table name where the result will be written
 outputtable_;experiment_result_auc4
 ###########################################################
+# Data Gathering  (section 4.1 of Thesis)                 #
+###########################################################
+#mktdata_webservice_url_=http://www.webservicex.net/stockquote.asmx/GetQuote?symbol=
+# 15 mins delayed mktdata
+mktdata_webservice_url_;http://dev.markitondemand.com/MODApis/Api/v2/Quote?symbol=
+
+###########################################################
 # class definition parameters                             #
 ###########################################################
 #this "_02" is for "improved one against all" schema only, keep with empty for normal modelling

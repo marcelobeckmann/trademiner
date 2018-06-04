@@ -13,8 +13,8 @@
     <parameter key="process_duration_for_mail" value="30"/>
     <parameter key="encoding" value="SYSTEM"/>
     <parameter key="parallelize_main_process" value="false"/>
-    <process expanded="true" height="431" width="634">
-      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="300">
+    <process expanded="true" height="460" width="634">
+      <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV Macros" width="90" x="45" y="345">
         <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
         <parameter key="column_separators" value=";"/>
         <parameter key="trim_lines" value="false"/>
@@ -41,7 +41,61 @@
         <parameter key="macro_attribute" value="macro"/>
         <parameter key="value_attribute" value="value"/>
       </operator>
-      <operator activated="true" class="loop" compatibility="5.2.008" expanded="true" height="76" name="Loop" width="90" x="112" y="75">
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Create Temp Table" width="90" x="45" y="75">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" name="Read Database">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="SELECT DATE_FORMAT(NOW(),'%Y%m%d%H%i') temp_table_timestamp_,&#10;&#10;DATE_FORMAT(NOW(),'%Y%m%d') temp_table_date_"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" name="Extract Macro">
+            <parameter key="macro" value="temp_table_timestamp_"/>
+            <parameter key="macro_type" value="data_value"/>
+            <parameter key="statistics" value="average"/>
+            <parameter key="attribute_name" value="temp_table_timestamp_"/>
+            <parameter key="example_index" value="1"/>
+          </operator>
+          <operator activated="true" class="extract_macro" compatibility="5.2.008" expanded="true" name="Extract Macro (2)">
+            <parameter key="macro" value="temp_table_date_"/>
+            <parameter key="macro_type" value="data_value"/>
+            <parameter key="statistics" value="average"/>
+            <parameter key="attribute_name" value="temp_table_date_"/>
+            <parameter key="example_index" value="1"/>
+          </operator>
+          <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" name="Execute SQL (2)">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="query" value="CREATE TABLE IF NOT EXISTS temp_mktdata_%{temp_table_timestamp_} &#10;SELECT * FROM RAW_MKTDATA LIMIT 0"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+          </operator>
+          <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" name="Execute SQL (3)">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="query" value="CREATE TABLE IF NOT EXISTS temp_mktdata_%{temp_table_date_} &#10;SELECT * FROM RAW_MKTDATA LIMIT 0"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+          </operator>
+          <connect from_op="Read Database" from_port="output" to_op="Extract Macro" to_port="example set"/>
+          <connect from_op="Extract Macro" from_port="example set" to_op="Extract Macro (2)" to_port="example set"/>
+          <connect from_op="Extract Macro (2)" from_port="example set" to_op="Execute SQL (2)" to_port="through 1"/>
+          <connect from_op="Execute SQL (2)" from_port="through 1" to_op="Execute SQL (3)" to_port="through 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="loop" compatibility="5.2.008" expanded="true" height="76" name="Loop" width="90" x="179" y="75">
         <parameter key="set_iteration_macro" value="false"/>
         <parameter key="macro_name" value="iteration"/>
         <parameter key="macro_start_value" value="1"/>
@@ -49,8 +103,8 @@
         <parameter key="limit_time" value="false"/>
         <parameter key="timeout" value="1"/>
         <parameter key="parallelize_iteration" value="false"/>
-        <process expanded="true" height="509" width="748">
-          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (5)" width="90" x="179" y="255">
+        <process expanded="true" height="640" width="1372">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (5)" width="90" x="313" y="525">
             <parameter key="define_connection" value="predefined"/>
             <parameter key="connection" value="trademiner"/>
             <parameter key="database_system" value="MySQL"/>
@@ -61,24 +115,34 @@
             <enumeration key="parameters"/>
             <parameter key="datamanagement" value="double_array"/>
           </operator>
-          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (6)" width="90" x="45" y="30">
-            <parameter key="define_connection" value="predefined"/>
-            <parameter key="connection" value="trademiner"/>
-            <parameter key="database_system" value="MySQL"/>
-            <parameter key="define_query" value="query"/>
-            <parameter key="query" value="SELECT &#10;concat('http://www.webservicex.net/stockquote.asmx/GetQuote?symbol=', symbol) as link ,SYMBOL FROM SYMBOL s where STATUS=1&#10;and s.`index`='%{index_}'&#10; and ((&#10;SELECT count(*) FROM SYMBOL s where STATUS=1 and s.`index`='%{index_}'  AND (index_exit_date IS NULL OR NOW() BETWEEN index_entry_date AND index_exit_date)&#10;and ( select count(*) from raw_mktdata r where r.symbol=s.symbol and &#10;date_= date_format(now(),'%c/%e/%Y') and time=(select time from raw_mktdata order by id desc limit 1)))=(SELECT count(*) FROM SYMBOL s where STATUS=1 and s.`index`='%{index_}'  AND (index_exit_date IS NULL OR NOW() BETWEEN index_entry_date AND index_exit_date)  )&#10; or &#10; (select count(*) from raw_mktdata r where r.symbol=s.symbol and &#10;date_= date_format(now(),'%c/%e/%Y') and time=(select time from raw_mktdata order by id desc limit 1)&#10;)=0)&#10;"/>
-            <parameter key="use_default_schema" value="true"/>
-            <parameter key="prepare_statement" value="false"/>
-            <enumeration key="parameters"/>
-            <parameter key="datamanagement" value="double_array"/>
+          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Symbols" width="90" x="45" y="165">
+            <parameter key="parallelize_nested_chain" value="false"/>
+            <process expanded="true" height="693" width="832">
+              <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (6)" width="90" x="112" y="75">
+                <parameter key="define_connection" value="predefined"/>
+                <parameter key="connection" value="trademiner"/>
+                <parameter key="database_system" value="MySQL"/>
+                <parameter key="define_query" value="query"/>
+                <parameter key="query" value="SELECT &#10;CONCAT('%{mktdata_webservice_url_}', symbol) AS link ,SYMBOL FROM SYMBOL s WHERE STATUS=1&#10;AND s.index='%{index_}' AND (index_exit_date IS NULL OR NOW() BETWEEN index_entry_date AND index_exit_date)&#10;AND s.symbol not in (select symbol from temp_mktdata_%{temp_table_timestamp_} where &#10;last is not null)&#10;limit 15&#10;"/>
+                <parameter key="use_default_schema" value="true"/>
+                <parameter key="prepare_statement" value="false"/>
+                <enumeration key="parameters"/>
+                <parameter key="datamanagement" value="double_array"/>
+              </operator>
+              <connect from_op="Read Database (6)" from_port="output" to_port="out 1"/>
+              <portSpacing port="source_in 1" spacing="0"/>
+              <portSpacing port="source_in 2" spacing="0"/>
+              <portSpacing port="sink_out 1" spacing="0"/>
+              <portSpacing port="sink_out 2" spacing="0"/>
+            </process>
           </operator>
-          <operator activated="true" class="generate_macro" compatibility="5.2.008" expanded="true" height="76" name="Generate Macro" width="90" x="15" y="124">
+          <operator activated="true" class="generate_macro" compatibility="5.2.008" expanded="true" height="76" name="Generate Macro" width="90" x="45" y="300">
             <list key="function_descriptions">
               <parameter key="timestamp_" value="date_now()"/>
             </list>
             <parameter key="use_standard_constants" value="true"/>
           </operator>
-          <operator activated="true" class="web:retrieve_webpages" compatibility="5.3.001" expanded="true" height="60" name="Get Pages (2)" width="90" x="45" y="345">
+          <operator activated="true" class="web:retrieve_webpages" compatibility="5.3.001" expanded="true" height="60" name="Get Pages (2)" width="90" x="45" y="435">
             <parameter key="link_attribute" value="link"/>
             <parameter key="page_attribute" value="page"/>
             <parameter key="random_user_agent" value="true"/>
@@ -89,28 +153,51 @@
             <parameter key="cookie_scope" value="global"/>
             <parameter key="request_method" value="GET"/>
             <parameter key="delay" value="random"/>
-            <parameter key="delay_amount" value="1000"/>
-            <parameter key="min_delay_amount" value="10"/>
-            <parameter key="max_delay_amount" value="60"/>
+            <parameter key="delay_amount" value="500"/>
+            <parameter key="min_delay_amount" value="500"/>
+            <parameter key="max_delay_amount" value="1500"/>
           </operator>
-          <operator activated="true" class="text:generate_extract" compatibility="5.2.003" expanded="true" height="60" name="Generate Extract (2)" width="90" x="179" y="120">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (2)" width="90" x="246" y="165">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="select 'UTC\-04:00' from_, '' to_ union all&#10;select '[^( 0-9{2}:0-9{2}:0-9{2} )]' from_ , '' to_ union all&#10;select ' [0-9]{4}' from_ , '' to_ union all&#10;select '^[ ]{0,5}[0-9]{1,2} ' from_ , '' to_"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (3)" width="90" x="112" y="525">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="select 'UTC\-04:00' from_, '' to_ union all&#10;select '( [0-9]{2}:[0-9]{2}:[0-9]{2} )' from_ , '' to_ union all&#10;select 'Mon|Tue|Wed|Thu|Fri|Sat|Sun' from_ , '' to_ union all&#10;select ' ' from_ , '/' to_ union all&#10;select '^/' from_ , '' to_ union all&#10;select '([A-Za-z]{3})(/[0-9]{1,2})(/[0-9]{4})' from_ , '$2/$1/$3' to_ union all&#10;select '^/' from_ , '' to_ union all&#10;select '//' from_ , '/' to_ union all&#10;select 'Jan' from_ , '1' to_ union all&#10;select 'Feb' from_ , '2' to_ union all&#10;select 'Mar' from_ , '3' to_ union all&#10;select 'Apr' from_ , '4' to_ union all&#10;select 'May' from_ , '5' to_ union all&#10;select 'Jun' from_ , '6' to_ union all&#10;select 'Jul' from_ , '7' to_ union all&#10;select 'Ago' from_ , '8' to_ union all&#10;select 'Sep' from_ , '9' to_ union all&#10;select 'Out' from_ , '10' to_ union all&#10;select 'Nov' from_ , '11' to_ union all&#10;select 'Dez' from_ , '12' to_ "/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <operator activated="true" class="text:generate_extract" compatibility="5.2.003" expanded="true" height="60" name="Generate Extract (4)" width="90" x="246" y="30">
             <parameter key="source_attribute" value="page"/>
             <parameter key="query_type" value="String Matching"/>
             <list key="string_machting_queries">
-              <parameter key="last" value="&amp;lt;Last&amp;gt;.&amp;lt;/Last&amp;gt;"/>
-              <parameter key="date_" value="&amp;lt;Date&amp;gt;.&amp;lt;/Date&amp;gt;"/>
-              <parameter key="time" value="&amp;lt;Time&amp;gt;.&amp;lt;/Time&amp;gt;"/>
-              <parameter key="change_" value="&amp;lt;Change&amp;gt;.&amp;lt;/Change&amp;gt;"/>
-              <parameter key="open" value="&amp;lt;Open&amp;gt;.&amp;lt;/Open&amp;gt;"/>
-              <parameter key="high" value="&amp;lt;High&amp;gt;.&amp;lt;/High&amp;gt;"/>
-              <parameter key="low" value="&amp;lt;Low&amp;gt;.&amp;lt;/Low&amp;gt;"/>
-              <parameter key="volume" value="&amp;lt;Volume&amp;gt;.&amp;lt;/Volume&amp;gt;"/>
-              <parameter key="mktcap" value="&amp;lt;MktCap&amp;gt;.&amp;lt;/MktCap&amp;gt;"/>
-              <parameter key="previous_close" value="&amp;lt;PreviousClose&amp;gt;.&amp;lt;/PreviousClose&amp;gt;"/>
-              <parameter key="percent_change" value="&amp;lt;PercentageChange&amp;gt;.&amp;lt;/PercentageChange&amp;gt;"/>
-              <parameter key="ann_range" value="&amp;lt;AnnRange&amp;gt;.&amp;lt;/AnnRange&amp;gt;"/>
-              <parameter key="earns" value="&amp;lt;Earns&amp;gt;.&amp;lt;/Earns&amp;gt;"/>
-              <parameter key="p_e" value="&amp;lt;P-E&amp;gt;.&amp;lt;/P-E&amp;gt;"/>
+              <parameter key="last" value="&lt;LastPrice&gt;.&lt;/LastPrice&gt;"/>
+              <parameter key="date_" value="&lt;Timestamp&gt;.&lt;/Timestamp&gt;"/>
+              <parameter key="time" value="&lt;Timestamp&gt;.&lt;/Timestamp&gt;"/>
+              <parameter key="change_" value="&lt;Change&gt;.&lt;/Change&gt;"/>
+              <parameter key="open" value="&lt;Open&gt;.&lt;/Open&gt;"/>
+              <parameter key="high" value="&lt;High&gt;.&lt;/High&gt;"/>
+              <parameter key="low" value="&lt;Low&gt;.&lt;/Low&gt;"/>
+              <parameter key="volume" value="&lt;Volume&gt;.&lt;/Volume&gt;"/>
+              <parameter key="mktcap" value="&lt;MarketCap&gt;.&lt;/MarketCap&gt;"/>
+              <parameter key="previous_close" value="&lt;PreviousClose&gt;.&lt;/PreviousClose&gt;"/>
+              <parameter key="percent_change" value="&lt;ChangePercent&gt;.&lt;/ChangePercent&gt;"/>
+              <parameter key="ann_range" value="&lt;AnnRange&gt;.&lt;/AnnRange&gt;"/>
+              <parameter key="earns" value="&lt;Earns&gt;.&lt;/Earns&gt;"/>
+              <parameter key="p_e" value="&lt;P-E&gt;.&lt;/P-E&gt;"/>
+              <parameter key="timestamp" value="&lt;Timestamp&gt;.&lt;/Timestamp&gt;"/>
             </list>
             <parameter key="attribute_type" value="Nominal"/>
             <list key="regular_expression_queries"/>
@@ -123,7 +210,49 @@
               <parameter key="content" value="0.200"/>
             </list>
           </operator>
-          <operator activated="true" class="replace_dictionary" compatibility="5.2.008" expanded="true" height="94" name="Replace (2)" width="90" x="313" y="75">
+          <operator activated="true" class="replace_dictionary" compatibility="5.2.008" expanded="true" height="94" name="Replace Time" width="90" x="380" y="120">
+            <parameter key="return_preprocessing_model" value="false"/>
+            <parameter key="create_view" value="false"/>
+            <parameter key="attribute_filter_type" value="single"/>
+            <parameter key="attribute" value="time"/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="from_attribute" value="from_"/>
+            <parameter key="to_attribute" value="to_"/>
+            <parameter key="use_regular_expressions" value="true"/>
+            <parameter key="convert_to_lowercase" value="false"/>
+            <parameter key="first_match_only" value="false"/>
+          </operator>
+          <operator activated="true" class="replace_dictionary" compatibility="5.2.008" expanded="true" height="94" name="Replace Date" width="90" x="246" y="390">
+            <parameter key="return_preprocessing_model" value="false"/>
+            <parameter key="create_view" value="false"/>
+            <parameter key="attribute_filter_type" value="single"/>
+            <parameter key="attribute" value="date_"/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="from_attribute" value="from_"/>
+            <parameter key="to_attribute" value="to_"/>
+            <parameter key="use_regular_expressions" value="true"/>
+            <parameter key="convert_to_lowercase" value="false"/>
+            <parameter key="first_match_only" value="false"/>
+          </operator>
+          <operator activated="true" class="replace_dictionary" compatibility="5.2.008" expanded="true" height="94" name="Replace Number" width="90" x="447" y="390">
             <parameter key="return_preprocessing_model" value="false"/>
             <parameter key="create_view" value="false"/>
             <parameter key="attribute_filter_type" value="subset"/>
@@ -144,10 +273,10 @@
             <parameter key="convert_to_lowercase" value="false"/>
             <parameter key="first_match_only" value="false"/>
           </operator>
-          <operator activated="true" class="select_attributes" compatibility="5.2.008" expanded="true" height="76" name="Select Attributes (2)" width="90" x="447" y="30">
+          <operator activated="true" class="select_attributes" compatibility="5.2.008" expanded="true" height="76" name="Select Attributes (2)" width="90" x="581" y="30">
             <parameter key="attribute_filter_type" value="subset"/>
             <parameter key="attribute" value=""/>
-            <parameter key="attributes" value="link"/>
+            <parameter key="attributes" value="ann_range|change_|date_|earns|high|last|low|mktcap|open|p_e|percent_change|previous_close|time|volume|SYMBOL"/>
             <parameter key="use_except_expression" value="false"/>
             <parameter key="value_type" value="attribute_value"/>
             <parameter key="use_value_type_exception" value="false"/>
@@ -155,37 +284,37 @@
             <parameter key="block_type" value="attribute_block"/>
             <parameter key="use_block_type_exception" value="false"/>
             <parameter key="except_block_type" value="value_matrix_row_start"/>
-            <parameter key="invert_selection" value="true"/>
+            <parameter key="invert_selection" value="false"/>
             <parameter key="include_special_attributes" value="false"/>
           </operator>
-          <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database (3)" width="90" x="447" y="165">
+          <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database (3)" width="90" x="581" y="210">
             <parameter key="define_connection" value="predefined"/>
             <parameter key="connection" value="trademiner"/>
             <parameter key="database_system" value="MySQL"/>
             <parameter key="use_default_schema" value="true"/>
-            <parameter key="table_name" value="temp_mktdata_%{timestamp_}"/>
-            <parameter key="overwrite_mode" value="overwrite first, append then"/>
+            <parameter key="table_name" value="temp_mktdata_%{temp_table_timestamp_}"/>
+            <parameter key="overwrite_mode" value="append"/>
             <parameter key="set_default_varchar_length" value="false"/>
             <parameter key="default_varchar_length" value="128"/>
             <parameter key="add_generated_primary_keys" value="false"/>
             <parameter key="db_key_attribute_name" value="generated_primary_key"/>
             <parameter key="batch_size" value="1"/>
           </operator>
-          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="94" name="Subprocess (2)" width="90" x="514" y="255">
+          <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Write Raw Mktdata" width="90" x="581" y="345">
             <parameter key="parallelize_nested_chain" value="false"/>
-            <process expanded="true" height="491" width="693">
+            <process expanded="true" height="675" width="814">
               <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database (4)" width="90" x="45" y="30">
                 <parameter key="define_connection" value="predefined"/>
                 <parameter key="connection" value="trademiner"/>
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="define_query" value="query"/>
-                <parameter key="query" value="select last,&#10;earns,p_e,previous_close ,percent_change,volume , high, low  , mktcap,symbol, &#10;date_ , open,time,ann_range , change_ , addtime( now(),'-00:15:00') as localtime_ , addtime( utc_time(),'-00:15:00') as utc_time_&#10;from `temp_mktdata_%{timestamp_}` tmd where&#10;(&#10;select count(*) from raw_mktdata md where  md.symbol=tmd.symbol&#10;and md.date_=tmd.date_ and md.time=tmd.time &#10;-- and md.last=tmd.last  -- this was creating duplicated records&#10;&#10;)=0&#10;"/>
+                <parameter key="query" value="select last,&#10;earns,p_e,previous_close ,percent_change,volume , high, low  , mktcap,symbol, &#10;date_ , open,time,ann_range , change_ , addtime( now(),'-00:15:00') as localtime_ , addtime( utc_time(),'-00:15:00') as utc_time_&#10;from `temp_mktdata_%{temp_table_timestamp_}` tmd where&#10;last is not null and&#10;(&#10;select count(*) from `temp_mktdata_%{temp_table_date_}` md where  md.symbol=tmd.symbol&#10;and md.date_=tmd.date_ and md.time=tmd.time &#10;-- and md.last=tmd.last  -- this was creating duplicated records&#10;&#10;)=0&#10;"/>
                 <parameter key="use_default_schema" value="true"/>
                 <parameter key="prepare_statement" value="false"/>
                 <enumeration key="parameters"/>
                 <parameter key="datamanagement" value="double_array"/>
               </operator>
-              <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Database (4)" width="90" x="315" y="30">
+              <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Raw Mktdat" width="90" x="180" y="30">
                 <parameter key="define_connection" value="predefined"/>
                 <parameter key="connection" value="trademiner"/>
                 <parameter key="database_system" value="MySQL"/>
@@ -198,45 +327,61 @@
                 <parameter key="db_key_attribute_name" value="generated_primary_key"/>
                 <parameter key="batch_size" value="5"/>
               </operator>
-              <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL" width="90" x="434" y="132">
+              <operator activated="true" class="write_database" compatibility="5.2.008" expanded="true" height="60" name="Write Daily Mktdata" width="90" x="315" y="30">
+                <description>
+This last write stores the records in the day only, to speedup the search.</description>
                 <parameter key="define_connection" value="predefined"/>
                 <parameter key="connection" value="trademiner"/>
                 <parameter key="database_system" value="MySQL"/>
-                <parameter key="query" value="drop table `temp_mktdata_%{timestamp_}`"/>
-                <parameter key="prepare_statement" value="false"/>
-                <enumeration key="parameters"/>
+                <parameter key="use_default_schema" value="true"/>
+                <parameter key="table_name" value="temp_mktdata_%{temp_table_date_}"/>
+                <parameter key="overwrite_mode" value="append"/>
+                <parameter key="set_default_varchar_length" value="false"/>
+                <parameter key="default_varchar_length" value="128"/>
+                <parameter key="add_generated_primary_keys" value="false"/>
+                <parameter key="db_key_attribute_name" value="generated_primary_key"/>
+                <parameter key="batch_size" value="1"/>
               </operator>
-              <connect from_op="Read Database (4)" from_port="output" to_op="Write Database (4)" to_port="input"/>
-              <connect from_op="Write Database (4)" from_port="through" to_op="Execute SQL" to_port="through 1"/>
-              <connect from_op="Execute SQL" from_port="through 1" to_port="out 2"/>
+              <connect from_op="Read Database (4)" from_port="output" to_op="Write Raw Mktdat" to_port="input"/>
+              <connect from_op="Write Raw Mktdat" from_port="through" to_op="Write Daily Mktdata" to_port="input"/>
               <portSpacing port="source_in 1" spacing="0"/>
               <portSpacing port="source_in 2" spacing="0"/>
               <portSpacing port="sink_out 1" spacing="0"/>
-              <portSpacing port="sink_out 2" spacing="0"/>
-              <portSpacing port="sink_out 3" spacing="0"/>
             </process>
           </operator>
-          <connect from_op="Read Database (5)" from_port="output" to_op="Replace (2)" to_port="dictionary"/>
-          <connect from_op="Read Database (6)" from_port="output" to_op="Generate Macro" to_port="through 1"/>
+          <connect from_port="input 1" to_op="Read Symbols" to_port="in 1"/>
+          <connect from_op="Read Database (5)" from_port="output" to_op="Replace Number" to_port="dictionary"/>
+          <connect from_op="Read Symbols" from_port="out 1" to_op="Generate Macro" to_port="through 1"/>
           <connect from_op="Generate Macro" from_port="through 1" to_op="Get Pages (2)" to_port="Example Set"/>
-          <connect from_op="Get Pages (2)" from_port="Example Set" to_op="Generate Extract (2)" to_port="Example Set"/>
-          <connect from_op="Generate Extract (2)" from_port="Example Set" to_op="Replace (2)" to_port="example set input"/>
-          <connect from_op="Replace (2)" from_port="example set output" to_op="Select Attributes (2)" to_port="example set input"/>
+          <connect from_op="Get Pages (2)" from_port="Example Set" to_op="Generate Extract (4)" to_port="Example Set"/>
+          <connect from_op="Read Database (2)" from_port="output" to_op="Replace Time" to_port="dictionary"/>
+          <connect from_op="Read Database (3)" from_port="output" to_op="Replace Date" to_port="dictionary"/>
+          <connect from_op="Generate Extract (4)" from_port="Example Set" to_op="Replace Time" to_port="example set input"/>
+          <connect from_op="Replace Time" from_port="example set output" to_op="Replace Date" to_port="example set input"/>
+          <connect from_op="Replace Date" from_port="example set output" to_op="Replace Number" to_port="example set input"/>
+          <connect from_op="Replace Number" from_port="example set output" to_op="Select Attributes (2)" to_port="example set input"/>
           <connect from_op="Select Attributes (2)" from_port="example set output" to_op="Write Database (3)" to_port="input"/>
-          <connect from_op="Write Database (3)" from_port="through" to_op="Subprocess (2)" to_port="in 1"/>
-          <connect from_op="Subprocess (2)" from_port="out 1" to_port="output 1"/>
+          <connect from_op="Write Database (3)" from_port="through" to_op="Write Raw Mktdata" to_port="in 1"/>
           <portSpacing port="source_input 1" spacing="0"/>
           <portSpacing port="source_input 2" spacing="0"/>
           <portSpacing port="sink_output 1" spacing="0"/>
           <portSpacing port="sink_output 2" spacing="0"/>
         </process>
       </operator>
+      <operator activated="true" class="execute_sql" compatibility="5.2.008" expanded="true" height="76" name="Execute SQL" width="90" x="313" y="75">
+        <parameter key="define_connection" value="predefined"/>
+        <parameter key="connection" value="trademiner"/>
+        <parameter key="database_system" value="MySQL"/>
+        <parameter key="query" value="drop table `temp_mktdata_%{temp_table_timestamp_}`"/>
+        <parameter key="prepare_statement" value="false"/>
+        <enumeration key="parameters"/>
+      </operator>
       <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
-      <connect from_op="Read Macros From Data" from_port="example set" to_op="Loop" to_port="input 1"/>
-      <connect from_op="Loop" from_port="output 1" to_port="result 1"/>
+      <connect from_op="Read Macros From Data" from_port="example set" to_op="Create Temp Table" to_port="in 1"/>
+      <connect from_op="Create Temp Table" from_port="out 1" to_op="Loop" to_port="input 1"/>
+      <connect from_op="Loop" from_port="output 1" to_op="Execute SQL" to_port="through 1"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="126"/>
-      <portSpacing port="sink_result 2" spacing="0"/>
     </process>
   </operator>
 </process>
