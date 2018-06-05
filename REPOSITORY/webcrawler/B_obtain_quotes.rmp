@@ -123,7 +123,7 @@
                 <parameter key="connection" value="trademiner"/>
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="define_query" value="query"/>
-                <parameter key="query" value="SELECT &#10;CONCAT('%{mktdata_webservice_url_}', symbol) AS link ,SYMBOL FROM SYMBOL s WHERE STATUS=1&#10;AND s.index='%{index_}' AND (index_exit_date IS NULL OR NOW() BETWEEN index_entry_date AND index_exit_date)&#10;AND s.symbol not in (select symbol from temp_mktdata_%{temp_table_timestamp_} where &#10;last is not null)&#10;limit 15&#10;"/>
+                <parameter key="query" value="SELECT &#10;CONCAT('%{mktdata_webservice_url_}', symbol) AS link ,SYMBOL FROM SYMBOL s &#10;WHERE s.index='%{index_}' AND (index_exit_date IS NULL OR NOW() BETWEEN index_entry_date AND index_exit_date)&#10;AND s.symbol not in (select symbol from temp_mktdata_%{temp_table_timestamp_} where &#10;last is not null)&#10;limit 15&#10;"/>
                 <parameter key="use_default_schema" value="true"/>
                 <parameter key="prepare_statement" value="false"/>
                 <enumeration key="parameters"/>
