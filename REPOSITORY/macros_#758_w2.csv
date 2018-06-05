@@ -1,55 +1,100 @@
 macro;value
-index_;DJIA
+###########################################################
+# General parameters                                      #
+###########################################################
+# Gives a description of what algorithms and parameters are used for this run
 experiment_description_;all, NO KNNUND, AGG OPT REOPTIMIZED, BASELINE #757 ,delta=2, REDOING OPT PARM WITH _KNNUND suffix files, BLACKLIST,KEEP FILES, SVM RBF, k=21 t=2 ,TRAINING INTERVAL 6M, RESTRICTIVE ALIGNMENT WITH DELTA 00:02:00,WEIGHT BY X2, 0.2, COSINE, N3GRAM,FIVE-DAYS BY FIVE-DAYS, SEPARATED TRAIN/TEST FROM >31/MAY TO <=06/SET, TF/IDF,GRID-SEARCH FOR C & GAMMA WITH FMEASURE, 2 CLASSES [-20]2, NO WEIGHTED AVG FOR PERFORMANCE, LIBSVM GRID-SEARCH ,NO TIMEZONE ADJUST,NEW_MACRO_SCHEMA,0_SHIFT, MKTDATA, CHI2
-window_size_;00:02:00
-ticket_;20160108
-aligner_impl_=RestrictiveAlignment
-db_host;localhost
-delta_;2
-#put all for all symbols
-#partial
-#all
-portfolio_;all
-k_;21
-t_;2
-mt_;4
-att_weight_;0.10
+# This is where the intermediate CSV files will be created
 outputdir_;/data/output_2
+# The host to MySQL database
+db_host;localhost
+# This is to identify which run the experiment is repeated (In the Thesis the experiment was repeated 10 times). 
+# KEEP IT AS 1 if you want to run just once.
 run_;1
-algo_;libsvm
-#the table name where the result will be written
+# The table name where the classification results will be written
 outputtable_;experiment_result_auc4
+###########################################################
+# Stock symbol selection                                  #
+###########################################################
+# Defines which set of stock symbols will be retrieved from database, given the index they are associated
+index_;DJIA
+# It's possible to associate a stock symbol with a portfolio (identified by the column portfolio in the table symbol), and run this portfolio instead of all symbols
+# To run all symbols, put all. There are also top5, top6, top9, partial, etc. You can create your own set of portfolio adding a portfolio name to column portfolio of table symbol.
+portfolio_;all
 ###########################################################
 # Data Gathering  (section 4.1 of Thesis)                 #
 ###########################################################
 #mktdata_webservice_url_=http://www.webservicex.net/stockquote.asmx/GetQuote?symbol=
 # 15 mins delayed mktdata
 mktdata_webservice_url_;http://dev.markitondemand.com/MODApis/Api/v2/Quote?symbol=
-
 ###########################################################
-# class definition parameters                             #
+# Window size and alignment (section 4.5.1 from Thesis)   #
 ###########################################################
-#this "_02" is for "improved one against all" schema only, keep with empty for normal modelling
+# Defines the windows size (tau) in minutes for news alignment
+window_size_;00:02:00
+# Each arrangement of alignment between news and prices are stored in a table. The result of this alignment defines how the news article is labeled (SURGE, NOT_RECOMENDED, PLUNGE)
+ticket_;20160108
+# This is the implementation of alignment that worked well so far and is expresses in the Thesis
+aligner_impl_=RestrictiveAlignment
+# This is the same as window_size, but in a numeric format for convenient storage in database columns and file names
+delta_;2
+###########################################################
+# Feature removal (section 4.3.2 of Thesis)               #
+###########################################################
+# This is the attribute weight for Feature Removal by Chi Square
+att_weight_;0.10S
+###########################################################
+# Machine Learning algo (section 4.3.4 of Thesis)         #
+###########################################################
+# This is only to identify the machine learning algorithm used in the experiments
+algo_;libsvm
+###########################################################
+# KNN Undersampling parameters (section 4.3.3 of Thesis)  #
+###########################################################
+# The number of k-neighbors for KNNUND
+k_;21
+# This is the decision threshold for KNNUND
+t_;2
+# These two parameters below define CSV file sufixes before and after KNNUND be applied.
 model_file_suffix_;_NOKNN
 model_file_noknn_;
-#keep "-2,0,2" to consider all classes
-#keep "0,2" to use "one against all" schema (any of them)
+###########################################################
+# Class definition parameters (section 4.3.3 of Thesis)   #
+###########################################################
+#keep "0,2" to use "one against all" schema (default)
+#put "-2,0,2" to consider all classes
 labels_;0,2
-#keep "label" to consider all classes or "improved one against all" schema
-#keep "IF(label='-2','2',label) AS label" to use "one against all" schema
+#keep "IF(label='-2','2',label) AS label" to use "one against all" schema (default)
+#put "label" to consider all classes 
 label_definition_;IF(label='-2','0',label) AS label
-min_performance_;0.50
 ###########################################################
-# YYYY/MM/DD
-#next_trade_date_;2013/06/24
-#end_test_date_;2013/06/28
-#outdir_;D0624
-#prev_outdir;D0617
+# Sliding windows parameters (section 4.2 of Thesis)      #
+###########################################################
+# The four parameters below provides the start and end dates, and respective storage directories for slide window train/test splitting
+# Keep commented the four parameters below if you are going to use some *run_all* experiment.
+# The *run_all* experiments provides an easy way to train and test all the slide window periods contained in the TRADEDATES.CSV
+# The next day the data will be tested, in YYYY/MM/DD format
+#next_trade_date_;2013/06/03
+# The end day the data will be tested, in YYYY/MM/DD format
+#end_test_date_;2013/09/02
+#The output subdirectory where the generated CSV files will be stored
+#outdir_;D0603
+# the previous output dir, or the same if it is the first output_dir (e.g., D0603)
+#prev_outdir;D0603
+#training size in months
 training_interval_;6
-###########################################################
+##########################################################
+# Simulation (section 4.5.2 of Thesis)                   #
+##########################################################
 #gets the last experiment for delta=2, you can also put a specific experiment id here
 sim_experiment_;(SELECT id FROM experiment WHERE delta=2 ORDER BY id DESC LIMIT 1)
-sim_min_performance_;0.60
-windows_size_minus_1_;00:00:00
+#the min classification performance accepted in terms of G-Mean for a stock model be taken for investment simmulation
+sim_min_performance_;0.55
+#Defines when the stock will be bought (00:00:00 to buy imediatelly after the news be published)
+windows_size_minus_1_;00:01:00
+#A simulation can be run several times to prove it's stability. This parameter identifies the simmulation run number
 run_count_;1
+#Identifies which type of simulation is beeing executed (e.g., using prediction/random trader)
 sym_type_;w1pred
+
+
