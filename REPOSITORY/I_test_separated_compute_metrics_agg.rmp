@@ -78,7 +78,7 @@
             <parameter key="database_system" value="MySQL"/>
             <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
             <parameter key="username" value="root"/>
-            <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+            <parameter key="password" value="9LL/TldVkqJ0ftLGQ08OSTjW36g5Xpdh601SSdyMfmhJAispttlA8i5lJdj2m9fG"/>
             <parameter key="define_query" value="query"/>
             <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1&#10;AND  s.exchange='NYSE'  &#10;-- ajustar isso&#10;and s.portfolio LIKE '%%{portfolio_}%'&#10;&#10;ORDER BY s.symbol&#10;&#10;"/>
             <parameter key="use_default_schema" value="true"/>
@@ -96,7 +96,7 @@
       <operator activated="true" class="print_to_console" compatibility="5.2.008" expanded="true" height="76" name="Print to Console (2)" width="90" x="447" y="30">
         <parameter key="log_value" value="###&gt;%{model_file_suffix_}&lt;##########################################"/>
       </operator>
-      <operator activated="true" class="loop_values" compatibility="5.2.008" expanded="true" height="76" name="Loop Values" width="90" x="447" y="165">
+      <operator activated="true" class="loop_values" compatibility="5.2.008" expanded="true" height="76" name="Loop Values" width="90" x="246" y="165">
         <parameter key="attribute" value="symbol"/>
         <parameter key="iteration_macro" value="symbol_"/>
         <parameter key="parallelize_iteration" value="false"/>
@@ -110,7 +110,7 @@
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
                 <parameter key="username" value="root"/>
-                <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+                <parameter key="password" value="9LL/TldVkqJ0ftLGQ08OSTjW36g5Xpdh601SSdyMfmhJAispttlA8i5lJdj2m9fG"/>
                 <parameter key="define_query" value="query"/>
                 <parameter key="query" value="SELECT s.dummy_id FROM symbol s WHERE s.symbol= '%{symbol_}'&#10;&#10;"/>
                 <parameter key="use_default_schema" value="true"/>
@@ -266,7 +266,7 @@
             <parameter key="database_system" value="MySQL"/>
             <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
             <parameter key="username" value="root"/>
-            <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+            <parameter key="password" value="9LL/TldVkqJ0ftLGQ08OSTjW36g5Xpdh601SSdyMfmhJAispttlA8i5lJdj2m9fG"/>
             <parameter key="use_default_schema" value="true"/>
             <parameter key="table_name" value="%{outputtable_}"/>
             <parameter key="overwrite_mode" value="append"/>
@@ -292,12 +292,36 @@
           <portSpacing port="sink_out 2" spacing="0"/>
         </process>
       </operator>
+      <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Read Results" width="90" x="378" y="165">
+        <parameter key="parallelize_nested_chain" value="false"/>
+        <process expanded="true" height="491" width="504">
+          <operator activated="true" class="read_database" compatibility="5.2.008" expanded="true" height="60" name="Read Database" width="90" x="245" y="40">
+            <parameter key="define_connection" value="predefined"/>
+            <parameter key="connection" value="trademiner"/>
+            <parameter key="database_system" value="MySQL"/>
+            <parameter key="define_query" value="query"/>
+            <parameter key="query" value="select * from trademiner.v_result"/>
+            <parameter key="use_default_schema" value="true"/>
+            <parameter key="prepare_statement" value="false"/>
+            <enumeration key="parameters"/>
+            <parameter key="datamanagement" value="double_array"/>
+          </operator>
+          <connect from_op="Read Database" from_port="output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
       <connect from_op="Read CSV Macros" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
       <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Symbols" to_port="in 1"/>
       <connect from_op="Read Symbols" from_port="out 1" to_op="Print to Console (2)" to_port="through 1"/>
       <connect from_op="Print to Console (2)" from_port="through 1" to_op="Loop Values" to_port="example set"/>
+      <connect from_op="Loop Values" from_port="out 1" to_op="Read Results" to_port="in 1"/>
+      <connect from_op="Read Results" from_port="out 1" to_port="result 1"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
     </process>
   </operator>
 </process>
