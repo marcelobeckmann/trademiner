@@ -51,7 +51,7 @@
             <parameter key="database_system" value="MySQL"/>
             <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
             <parameter key="username" value="root"/>
-            <parameter key="password" value="bW7eHSg9AJTDcW93ti6N/0QzS7zYpRHR8QatcCEMWtb3cfpPuaHWoqG5fG/erCM5"/>
+            <parameter key="password" value="Z3dtqy7Df/h789eRjvYzWPYzIBN3GM5vinIt0akk7j38OwEFvreu8YuRGThdutpMUjJefNzn7n/LwbzIv5Sng3VEhBdc4Jfz"/>
             <parameter key="define_query" value="query"/>
             <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1 &#10;AND s.exchange='NYSE' &#10;and portfolio like '%%{portfolio_}%' &#10;&#10;ORDER BY s.symbol&#10; "/>
             <parameter key="use_default_schema" value="true"/>
@@ -86,7 +86,7 @@
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
                 <parameter key="username" value="root"/>
-                <parameter key="password" value="bW7eHSg9AJTDcW93ti6N/0QzS7zYpRHR8QatcCEMWtb3cfpPuaHWoqG5fG/erCM5"/>
+                <parameter key="password" value="Z3dtqy7Df/h789eRjvYzWPYzIBN3GM5vinIt0akk7j38OwEFvreu8YuRGThdutpMUjJefNzn7n/LwbzIv5Sng3VEhBdc4Jfz"/>
                 <parameter key="define_query" value="query"/>
                 <parameter key="query" value="SELECT a.id AS id&#10;, convert(clean_content,char) as content_ ,&#10;%{label_definition_}&#10;FROM  alignment a, rss n&#10;WHERE a.status=1 AND a.news_id=n.id AND a.symbol='%{symbol_}'  AND a.ticket LIKE '%%{ticket_}' and clean_content is not null &#10;and next_trade_date &gt;= &#10;DATE_ADD(STR_TO_DATE('%{next_trade_date_}','%Y/%m/%d'),INTERVAL -%{training_interval_} MONTH)&#10;and next_trade_date&lt; str_to_date('%{next_trade_date_}','%Y/%m/%d')&#10;ORDER BY n.published &#10;"/>
                 <parameter key="use_default_schema" value="true"/>

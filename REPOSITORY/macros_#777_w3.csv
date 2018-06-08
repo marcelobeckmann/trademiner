@@ -76,7 +76,7 @@ label_definition_;IF(label='-2','0',label) AS label
 # The next day the data will be tested, in YYYY/MM/DD format
 #next_trade_date_;2013/06/03
 # The end day the data will be tested, in YYYY/MM/DD format
-#end_test_date_;2013/09/02
+#end_test_date_;2013/06/07
 #The output subdirectory where the generated CSV files will be stored
 #outdir_;D0603
 # the previous output dir, or the same if it is the first output_dir (e.g., D0603)
