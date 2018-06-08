@@ -1,4 +1,4 @@
-package com.rapidminer.operator.preprocessing.transformation;
+package com.rapidminer.operator.preprocessing.deprecated;
 
 import java.util.ArrayList;
 import java.util.Collection;

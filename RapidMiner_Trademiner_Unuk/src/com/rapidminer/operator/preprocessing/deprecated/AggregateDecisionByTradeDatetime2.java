@@ -1,4 +1,4 @@
-package com.rapidminer.operator.preprocessing.transformation;
+package com.rapidminer.operator.preprocessing.deprecated;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,6 +30,7 @@ import com.rapidminer.parameter.ParameterTypeString;
  * 
  * @author Marcelo Beckmann
  */
+
 
 public class AggregateDecisionByTradeDatetime2 extends Operator {
 

@@ -826,7 +826,7 @@ public class ExpressionParser {
 
 		// remove existing attribute (if necessary)
 		if (existingAttribute != null) {
-			/* FIXME: The following line cannot be used, as the attribute might
+			/* The following line cannot be used, as the attribute might
 			* occur in other example sets, or other attribute instances might use the same 
 			* ExampleTable's column.
 			* 

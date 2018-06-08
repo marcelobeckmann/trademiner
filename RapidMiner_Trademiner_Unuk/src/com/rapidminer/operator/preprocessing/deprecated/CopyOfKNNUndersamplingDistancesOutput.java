@@ -1,4 +1,4 @@
-package com.rapidminer.operator.preprocessing.transformation;
+package com.rapidminer.operator.preprocessing.deprecated;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +44,7 @@ import com.rapidminer.tools.math.similarity.DistanceMeasures;
  * @author Marcelo Beckmann
  */
 
-public class KNNUndersamplingDistancesOutput extends Operator {
+public class CopyOfKNNUndersamplingDistancesOutput extends Operator {
 
 	public static final String PARAMETER_MAJORITYT_LABEL = "majority_label";
 	public static final String PARAMETER_K = "k";
@@ -75,7 +75,7 @@ public class KNNUndersamplingDistancesOutput extends Operator {
 	/**
 	 * Constructor
 	 */
-	public KNNUndersamplingDistancesOutput(OperatorDescription description) {
+	public CopyOfKNNUndersamplingDistancesOutput(OperatorDescription description) {
 		super(description);
 
 		getTransformer().addRule(new ExampleSetPassThroughRule(exampleSetInput, exampleSetOutput, SetRelation.EQUAL) {

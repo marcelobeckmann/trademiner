@@ -1,4 +1,4 @@
-package com.rapidminer.operator.preprocessing.processcontrol;
+package com.rapidminer.operator.preprocessing.deprecated;
 
 import java.io.File;
 import java.util.List;

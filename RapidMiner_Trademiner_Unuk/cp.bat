@@ -1,2 +1,2 @@
-copy /y "C:\Projetos\TextProcessing\RapidMiner_Unuk\lib\plugins\*Trademiner*.jar" "C:\Program Files\Rapid-I\RapidMiner5\lib\plugins"
-call "C:\Program Files\Rapid-I\RapidMiner5\scripts\RapidMinerGUIDebug.bat"
+copy /y "..\RapidMiner_Unuk\lib\plugins\*Trademiner*.jar" "%RAPIDMINER_HOME%\lib\plugins"
+call "%RAPIDMINER_HOME%\scripts\RapidMinerGUIDebug.bat"

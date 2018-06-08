@@ -1,4 +1,4 @@
-package com.rapidminer.operator.preprocessing.transformation;
+package com.rapidminer.operator.preprocessing.deprecated;
 
 import java.text.NumberFormat;
 
@@ -47,7 +47,7 @@ public class PredictionCount2{
 	static int conjunctionOperator1;
 	static boolean usePercent=false;
 
-	public static final NumberFormat nf=setupNf();
+	static final NumberFormat nf=setupNf();
 	
 	public String getDatetime() {
 		return datetime;

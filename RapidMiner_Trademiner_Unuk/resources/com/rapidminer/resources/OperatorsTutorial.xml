@@ -61,12 +61,12 @@
                   <class>com.rapidminer.operator.preprocessing.transformation.AgglomerativeKNNReduction
                   </class>
                </operator>
-         <group key="process_control">
-                 <operator>
-                  <key>Wait for File</key>
-                  <class>com.rapidminer.operator.preprocessing.processcontrol.WaitForFile</class>
-               </operator>
-         </group>
+               <group key="process_control">
+                   <operator>
+                   <key>Wait for File</key>
+                   <class>com.rapidminer.operator.preprocessing.processcontrol.WaitForFile</class>
+                </operator>
+               </group>
                
                
                <operator>
