@@ -20,12 +20,7 @@
             </group>
              -->
                
-                 <operator>
-            		<icon>gear.png</icon>
-                  <key>Performance To ExampleSet</key>
-                  <class>com.rapidminer.operator.preprocessing.transformation.PerformanceToResultSet
-                  </class>
-               </operator>
+            
                              
                  <operator>
                   <icon>gear.png</icon>
@@ -51,6 +46,13 @@
             <!-- Failed experiments (This brings me back in the memory the genetic lab scene in Alien III) -->
             <!--     
         
+             <operator>
+            		<icon>gear.png</icon>
+                  <key>Performance To ExampleSet</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.PerformanceToResultSet
+                  </class>
+               </operator>
+               
                <operator>
                   <key>Dimensionality Compression</key>
                   <class>com.rapidminer.operator.preprocessing.transformation.DimensionalityCompression
@@ -91,6 +93,32 @@
                </operator>
                
                
+                       
+               
+            <operator>
+            	<icon>gear.png</icon>
+               <key>Remove words not in Dictionary</key>
+               <class>com.rapidminer.operator.preprocessing.transformation.RemoveWordsNotInDictionary</class>
+               <replaces>StopwordFileFilter</replaces>
+            </operator>
+               
+               
+            <operator>
+            <icon>gear.png</icon>
+               <key>Generate N-Gram Word List</key>
+               <class>com.rapidminer.operator.preprocessing.transformation.GenerateNGramWordList</class>
+               <replaces>StopwordFileFilter</replaces>
+            </operator>
+            
+           
+               
+                 <operator>
+                 <icon>gear.png</icon>
+                  <key>Generate Word Count for Chart</key>
+                  <class>com.rapidminer.operator.preprocessing.transformation.GenerateWordsForChart</class>
+               </operator>
+               
+               
                -->
                
                 <operator>
@@ -116,14 +144,7 @@
                
                
                
-               
-               
-                 <operator>
-                 <icon>gear.png</icon>
-                  <key>Generate Word Count for Chart</key>
-                  <class>com.rapidminer.operator.preprocessing.transformation.GenerateWordsForChart</class>
-               </operator>
-               
+             
                
                <operator>
                <icon>gear.png</icon>
@@ -133,24 +154,7 @@
                
                
                  
-               
-               
-            <operator>
-            	<icon>gear.png</icon>
-               <key>Remove words not in Dictionary</key>
-               <class>com.rapidminer.operator.preprocessing.transformation.RemoveWordsNotInDictionary</class>
-               <replaces>StopwordFileFilter</replaces>
-            </operator>
-               
-               
-            <operator>
-            <icon>gear.png</icon>
-               <key>Generate N-Gram Word List</key>
-               <class>com.rapidminer.operator.preprocessing.transformation.GenerateNGramWordList</class>
-               <replaces>StopwordFileFilter</replaces>
-            </operator>
-            
-         
+       
          
          	
                
