@@ -11,7 +11,7 @@ public class SimpleAlignment {
 	private Operator operator;
 	public static AlignmentDAOImpl dao;
 
-	SimpleAlignment(Operator operator, String table, String index) throws SQLException {
+	public SimpleAlignment(Operator operator, String table, String index) throws SQLException {
 		this.operator = operator;
 		dao = new AlignmentDAOImpl(table, index);
 

@@ -1,14 +1,16 @@
-package com.rapidminer.operator.trademiner.aligner;
+package com.rapidminer.operator.preprocessing.deprecated;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.rapidminer.operator.Operator;
+import com.rapidminer.operator.trademiner.aligner.Alignment;
+import com.rapidminer.operator.trademiner.aligner.SimpleAlignment;
 
 public class RestrictiveAlignment2M extends SimpleAlignment {
 
-	RestrictiveAlignment2M(Operator operator, String table, String index) throws SQLException {
+	public RestrictiveAlignment2M(Operator operator, String table, String index) throws SQLException {
 		super(operator, table, index);
 		// TODO Auto-generated constructor stub
 	}

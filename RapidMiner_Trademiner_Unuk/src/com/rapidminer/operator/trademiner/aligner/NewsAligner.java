@@ -36,6 +36,8 @@ import com.rapidminer.operator.OperatorDescription;
 import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.ports.DummyPortPairExtender;
 import com.rapidminer.operator.ports.PortPairExtender;
+import com.rapidminer.operator.preprocessing.deprecated.RestrictiveAlignment2M;
+import com.rapidminer.operator.preprocessing.deprecated.RestrictiveAlignment2MPercent;
 import com.rapidminer.operator.trademiner.util.ConnectionFactory;
 import com.rapidminer.parameter.ParameterType;
 import com.rapidminer.parameter.ParameterTypeCategory;
