@@ -1,5 +1,7 @@
 package com.rapidminer.operator.preprocessing.transformation;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.rapidminer.example.Attribute;
@@ -23,7 +25,10 @@ public class ReadMacrosFromData extends Operator {
 	private static final String PARAMETER_VALUE_ATTRIBUTE = "value_attribute";
 	private InputPort exampleSetInput = getInputPorts().createPort("example set");
 	private OutputPort exampleSetOutput = getOutputPorts().createPort("example set");
+	private static final SimpleDateFormat  df= new SimpleDateFormat("yyyyMMddHHmmss.SSS")	;
+	
 
+	
 	/**
 	 * Constructor
 	 */
@@ -62,6 +67,8 @@ public class ReadMacrosFromData extends Operator {
 			System.out.println(macro + ":"+value);
 			getProcess().getMacroHandler().addMacro(macro, value);
 		}	
+		getProcess().getMacroHandler().addMacro("timestamp_", df.format(new Date()));
+		
 		exampleSetOutput.deliver(inputSet);
 	}
 
