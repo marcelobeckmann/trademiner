@@ -6,6 +6,7 @@
     <macros/>
   </context>
   <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Process">
+	<description>Labels news articles aligned with mktdata</description>
     <parameter key="logverbosity" value="init"/>
     <parameter key="random_seed" value="2001"/>
     <parameter key="send_mail" value="never"/>
@@ -15,7 +16,7 @@
     <parameter key="parallelize_main_process" value="false"/>
     <process expanded="true" height="555" width="797">
       <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV" width="90" x="45" y="345">
-        <parameter key="csv_file" value="/home/nelson/rm/REPOSITORY/macros.csv"/>
+        <parameter key="csv_file" value="/home/ubuntu/REPOSITORY/macros.csv"/>
         <parameter key="column_separators" value=";"/>
         <parameter key="trim_lines" value="false"/>
         <parameter key="use_quotes" value="true"/>
