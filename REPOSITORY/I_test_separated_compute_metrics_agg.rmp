@@ -6,7 +6,7 @@
     <macros/>
   </context>
   <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Root">
-    <description>This step applies a ensemble decision over all the tested weeks using CATS algorithm.</description>
+    <description>This step applies an ensemble decision over all the tested weeks using CATS algorithm.</description>
     <parameter key="logverbosity" value="init"/>
     <parameter key="random_seed" value="2001"/>
     <parameter key="send_mail" value="never"/>
