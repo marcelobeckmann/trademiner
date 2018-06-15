@@ -51,7 +51,7 @@
             <parameter key="database_system" value="MySQL"/>
             <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
             <parameter key="username" value="root"/>
-            <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+            <parameter key="password" value="9LL/TldVkqJ0ftLGQ08OSTjW36g5Xpdh601SSdyMfmhJAispttlA8i5lJdj2m9fG"/>
             <parameter key="define_query" value="query"/>
             <parameter key="query" value="SELECT s.symbol FROM symbol s WHERE s.status=1&#10;AND  s.exchange='NYSE'  &#10;-- ajustar isso&#10;and s.portfolio LIKE '%%{portfolio_}%'&#10;-- and s.symbol='DD'&#10; ORDER BY s.symbol&#10;&#10;"/>
             <parameter key="use_default_schema" value="true"/>
@@ -83,7 +83,7 @@
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="database_url" value="jdbc:mysql://localhost/trademiner"/>
                 <parameter key="username" value="root"/>
-                <parameter key="password" value="aTFQcKPpCnTlwfqAEUL8GicPoTiHdkkShOhfitSoT5s="/>
+                <parameter key="password" value="9LL/TldVkqJ0ftLGQ08OSTjW36g5Xpdh601SSdyMfmhJAispttlA8i5lJdj2m9fG"/>
                 <parameter key="define_query" value="query"/>
                 <parameter key="query" value="SELECT s.dummy_id FROM symbol s WHERE s.symbol= '%{symbol_}'&#10;&#10;"/>
                 <parameter key="use_default_schema" value="true"/>
@@ -294,7 +294,7 @@
             </process>
           </operator>
           <operator activated="true" class="write_parameters" compatibility="5.2.008" expanded="true" height="60" name="Write Parameters" width="90" x="654" y="272">
-            <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_%{run_}.parm"/>
+            <parameter key="parameter_file" value="%{outputdir_}/%{symbol_}_%{delta_}_parm_evo_agg_ii_%{run_}.parm"/>
             <parameter key="encoding" value="SYSTEM"/>
           </operator>
           <connect from_port="example set" to_op="Print to Console" to_port="through 1"/>
