@@ -75,7 +75,12 @@
           <portSpacing port="sink_out 2" spacing="0"/>
         </process>
       </operator>
-      <operator activated="true" class="tutorial:Loop Values Fixed" compatibility="5.0.000" expanded="true" height="76" name="Loop Values Fixed" width="90" x="380" y="30">
+      <operator activated="true" class="execute_program" compatibility="5.2.008" expanded="true" height="76" name="Remove Tested Files" width="90" x="447" y="75">
+        <parameter key="command" value="bash -c &quot;rm %{outputdir_}/*_TESTED_SMALL%{model_file_suffix_}.CSV&quot;"/>
+        <parameter key="log_stdout" value="true"/>
+        <parameter key="log_stderr" value="false"/>
+      </operator>
+      <operator activated="true" class="tutorial:Loop Values Fixed" compatibility="5.0.000" expanded="true" height="76" name="Loop Values Fixed" width="90" x="581" y="30">
         <parameter key="attribute" value="next_trade_date"/>
         <parameter key="iteration_macro" value="next_trade_date_"/>
         <parameter key="attribute2" value="end_test_date"/>
@@ -164,7 +169,8 @@
       </operator>
       <connect from_op="Read CSV" from_port="output" to_op="Read Macros From Data" to_port="example set"/>
       <connect from_op="Read Macros From Data" from_port="example set" to_op="Read Trading Days" to_port="in 1"/>
-      <connect from_op="Read Trading Days" from_port="out 1" to_op="Loop Values Fixed" to_port="example set"/>
+      <connect from_op="Read Trading Days" from_port="out 1" to_op="Remove Tested Files" to_port="through 1"/>
+      <connect from_op="Remove Tested Files" from_port="through 1" to_op="Loop Values Fixed" to_port="example set"/>
       <connect from_op="Loop Values Fixed" from_port="out 1" to_op="I_test_read_separated" to_port="input 1"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>

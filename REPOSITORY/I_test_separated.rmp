@@ -6,7 +6,9 @@
     <macros/>
   </context>
   <operator activated="true" class="process" compatibility="5.2.008" expanded="true" name="Root">
-    <description>AFTER THE CSV AND MODELS GENERATED, THIS STEP PERFORMS A TEST AND STORE THE RESULTS IN EXPERIMENT_RESULT TABLE AND IN *TESTED_SMALL.CSV FILES.</description>
+    <description>AFTER THE CSV AND MODELS GENERATED, THIS STEP PERFORMS A TEST AND STORE THE RESULTS IN EXPERIMENT_RESULT TABLE AND IN %{outputdir_}\*TESTED_SMALL*.CSV FILES.
+    
+IMPORTANT NOTE! THE *TESTED_SMALL*.CSV FILES ARE ACCUMULATED EVERY TIME THIS EXPERIMENT IS RUN.</description>
     <parameter key="logverbosity" value="init"/>
     <parameter key="random_seed" value="2001"/>
     <parameter key="send_mail" value="never"/>
@@ -157,6 +159,7 @@
             <parameter key="encoding" value="SYSTEM"/>
           </operator>
           <operator activated="true" class="subprocess" compatibility="5.2.008" expanded="true" height="76" name="Write fixed CSV" width="90" x="715" y="75">
+            <description>THIS SUBPROCESS GENERATES A CUMMULATIVE CSV (THROUGH APPEND)</description>
             <parameter key="parallelize_nested_chain" value="false"/>
             <process expanded="true" height="555" width="1314">
               <operator activated="true" class="read_csv" compatibility="5.2.008" expanded="true" height="60" name="Read CSV (3)" width="90" x="45" y="30">
