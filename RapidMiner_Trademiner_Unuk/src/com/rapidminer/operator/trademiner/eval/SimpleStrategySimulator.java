@@ -455,15 +455,13 @@ public class SimpleStrategySimulator extends Operator {
 				}
 				
 				double price = exampleToReturn.getValue(mktdataPriceAtt);
-				// TODO ASSERT PRICE
+				// ASSERT PRICE
 				Assert.assertTrue("The price of an asset never can be zero or negative, price=" + price + ", dateTime=" + dateTime, price > 0);
 				
 				long timeToReturn =  Util.convertToMinutes((long) exampleToReturn.getValue(mktdataDateTimeAtt));
-				
+				//Asserts a delta greater than 3
 				long delta = Math.abs(searchDateTime - timeToReturn);
-				//TODO ESSE NEGOCIO ABAIXO NAO ESTAH FUNCIONANDO
 				if (delta > 3) {
-					//TODO THIS ASSERTION IS FAILING BY 1025 units of difference
 					System.out.println("Delta between the searchDateTime and found mktdata is bigger than 3 mins ("
 					+ delta + ") "+new Date(searchDateTime)+"/"+new Date(timeToReturn)+" , "+searchDateTime +"/"+currentDateTime);
 					//return null;
