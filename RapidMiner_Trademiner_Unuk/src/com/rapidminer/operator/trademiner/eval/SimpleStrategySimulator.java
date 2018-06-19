@@ -447,8 +447,8 @@ public class SimpleStrategySimulator extends Operator {
 			if (searchDateTime >= previousDateTime && searchDateTime <= currentDateTime) {
 				Example exampleToReturn ;
 
-
-				if (searchDateTime >= previousDateTime) {
+				
+				if (Math.abs(searchDateTime-previousDateTime) < Math.abs(searchDateTime-currentDateTime) ){
 					exampleToReturn= previousExample;
 				} else {
 					exampleToReturn= example;
@@ -529,7 +529,7 @@ public class SimpleStrategySimulator extends Operator {
 	public List<ParameterType> getParameterTypes() {
 		List<ParameterType> types = super.getParameterTypes();
 
-		types.add(new ParameterTypeString(PARAMETER_ALIGNER_WINDOW, "The time window that a asset price takes to be affected by a new.", "00:01:00",
+		types.add(new ParameterTypeString(PARAMETER_ALIGNER_WINDOW, "The time window that an asset price takes to be affected by a new.", "00:01:00",
 				false));
 
 
